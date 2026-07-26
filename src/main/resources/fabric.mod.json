@@ -1,0 +1,44 @@
+{
+    "schemaVersion": 1,
+    "id": "rheniumcore",
+    "version": "1.0.0.000-alpha",
+    "name": "RheniumCore",
+    "description": "Trying to solve the problem that Minecraft highly depends on one single core",
+    "authors": [
+        "EXEFile_7f3c9d8a"
+    ],
+    "contact": {
+        "homepage": "https://fabricmc.net/",
+        "sources": "https://github.com/EXEFile7f3c9d8a/Rhenium"
+    },
+    "license": "GPLv3",
+    "icon": "assets/rheniumcore/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "dev.exefile7f.rheniumcore.RheniumCore"
+        ],
+        "client": [
+            "dev.exefile7f.rheniumcore.client.RheniumCoreClient"
+        ],
+        "fabric-datagen": [
+            "dev.exefile7f.rheniumcore.client.RheniumCoreDataGenerator"
+        ],
+        "modmenu": [
+            "dev.exefile7f.rheniumcore.client.ModMenu"
+        ]
+    },
+    "mixins": [
+        "rheniumcore.mixins.json",
+        {
+            "config": "rheniumcore.client.mixins.json",
+            "environment": "client"
+        }
+    ],
+    "depends": {
+        "fabricloader": ">=0.19.3",
+        "minecraft": "~1.21.11",
+        "java": ">=21",
+        "fabric-api": "*"
+    }
+}
