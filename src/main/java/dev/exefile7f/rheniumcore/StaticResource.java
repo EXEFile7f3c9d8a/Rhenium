@@ -2,6 +2,7 @@ package dev.exefile7f.rheniumcore;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,8 +14,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static net.minecraft.entity.ai.brain.sensor.Sensor.testAttackableTargetPredicate;
-import static net.minecraft.entity.ai.brain.sensor.Sensor.testTargetPredicate;
+import static net.minecraft.entity.ai.brain.sensor.Sensor.*;
 
 public interface StaticResource{
     int CPU_CORES = getCores();
@@ -74,6 +74,25 @@ public interface StaticResource{
 
     static List<Consumer<Tasks.Task>> WRITE_FUNCTIONS(){
         List<Consumer<Tasks.Task>> t = fillList(new ArrayList<>(), COMPUTE_SIZE);
+        t.set(0, (s) -> {//NearestPlayersSensor
+            Brain<?> brain = ((LivingEntity)s.input[2]).getBrain();
+            brain.remember((MemoryModuleType<List<PlayerEntity>>)s.output[0], (List<PlayerEntity>)s.output[1]);
+            brain.remember((MemoryModuleType<PlayerEntity>)s.output[2], (PlayerEntity)s.output[3]);
+            brain.remember((MemoryModuleType<List<PlayerEntity>>)s.output[4], (List<PlayerEntity>)s.output[5]);
+            brain.remember((MemoryModuleType<PlayerEntity>)s.output[6], (PlayerEntity)s.output[7]);
+        });
+        t.set(1, (s) -> {//
+
+        });
+        t.set(2, (s) -> {//
+
+        });
+        t.set(3, (s) -> {//
+
+        });
+        t.set(4, (s) -> {//
+
+        });
         return t;
     }
 
