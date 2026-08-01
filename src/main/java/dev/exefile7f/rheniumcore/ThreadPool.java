@@ -2,7 +2,6 @@ package dev.exefile7f.rheniumcore;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static dev.exefile7f.rheniumcore.StaticResource.*;
@@ -13,7 +12,7 @@ public class ThreadPool{
     public byte status = NO_TASK;
     public List<TickThread> tickThreads = new ArrayList<>();
     public Tasks tasks = new Tasks();
-    public CountDownLatch startLatch = new CountDownLatch(1);
+    public Lock lock = new Lock();
     public ThreadPool(){
         this.id = nextId.getAndIncrement();
         for(int i = 0; i < CPU_CORES - 1; i++){
@@ -25,13 +24,14 @@ public class ThreadPool{
     }
     public void launch(){
         this.status = HAVE_TASK;
-        this.startLatch.countDown();
+        this.lock.signalAll();
     }
-    public void stop(){
+    public void pause(){
         this.status = NO_TASK;
     }
     public void kill(){
         this.status = STOP;
+        this.lock.signalAll();
     }
     public void launchThreads(){
         for(int i = 0; i < tickThreads.size(); i++){

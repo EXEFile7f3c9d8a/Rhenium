@@ -14,19 +14,12 @@ public class TickThread implements Consumer<ThreadPool> {
     public void accept(ThreadPool pool){
         while(pool.status != STOP){
             if(pool.status == NO_TASK){
-                try{
-                    pool.startLatch.await();
-                    continue;
-                }catch(InterruptedException e){
-                    throw new RuntimeException(e);
-                }
-            }
-            if(pool.status == STOP){
-                break;
+                pool.lock.await();
+                continue;
             }
             int i = pool.tasks.located.getAndIncrement();
             if(i >= pool.tasks.tasks.size()){
-                pool.stop();
+                pool.pause();
                 continue;
             }
             Tasks.Task currentTask = pool.tasks.tasks.get(i);
