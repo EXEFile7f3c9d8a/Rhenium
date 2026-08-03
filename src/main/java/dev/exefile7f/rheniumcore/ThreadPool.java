@@ -7,14 +7,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static dev.exefile7f.rheniumcore.StaticResource.*;
 
 public class ThreadPool{
-    public static AtomicInteger nextId = new AtomicInteger(0);
+    public static SimpleId ID = new SimpleId();
     public final int id;
     public byte status = NO_TASK;
     public List<TickThread> tickThreads = new ArrayList<>();
     public Tasks tasks = new Tasks();
     public Lock lock = new Lock();
     public ThreadPool(){
-        this.id = nextId.getAndIncrement();
+        this.id = ID.nextId();
         for(int i = 0; i < CPU_CORES - 1; i++){
             tickThreads.add(new TickThread("TickThreadOf-" + this.id + "-" + i));
         }
