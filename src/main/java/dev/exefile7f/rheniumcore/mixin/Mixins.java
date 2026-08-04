@@ -11,18 +11,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.BooleanSupplier;
 
-import static dev.exefile7f.rheniumcore.StaticResource.THREAD_POOL;
+import static dev.exefile7f.rheniumcore.StaticResource.*;
 
 public class Mixins{
     @Mixin(ServerWorld.class)
     public static class ServerWorldMixin{
-        @Inject(method = "tick", at = @At("TAIL"))
+        @Inject(
+                method = "tick",
+                at = @At(
+                        value = "INVOKE",
+                        target = "Lnet/minecraft/util/profiler/Profiler;pop()V",
+                        ordinal = 6,
+                        shift = At.Shift.BEFORE
+                )
+        )
         public void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
-            THREAD_POOL.launch();
+
         }
+
     }
 
-    public static class SensorsMixin{
+    public static class SensorsMixins{
         @Mixin(NearestPlayersSensor.class)
         public static class NearestPlayersSensorMixin{
             @Inject(method = "sense", at = @At("HEAD"), cancellable = true)
