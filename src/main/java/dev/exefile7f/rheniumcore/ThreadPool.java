@@ -2,7 +2,6 @@ package dev.exefile7f.rheniumcore;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static dev.exefile7f.rheniumcore.StaticResource.*;
 
@@ -20,24 +19,34 @@ public class ThreadPool{
         }
     }
     public void replaceTasks(Tasks tsk){
-        this.tasks = tsk;
+        synchronized(tasks){
+            this.tasks = tsk;
+        }
     }
     public void launch(){
-        this.status = HAVE_TASK;
-        this.lock.signalAll();
+        synchronized(lock){
+            this.status = HAVE_TASK;
+            this.lock.signalAll();
+        }
     }
     public void pause(){
-        this.status = NO_TASK;
+        synchronized(lock){
+            this.status = NO_TASK;
+        }
     }
     public void kill(){
-        this.status = STOP;
-        this.lock.signalAll();
+        synchronized(lock){
+            this.status = STOP;
+            this.lock.signalAll();
+        }
     }
     public void launchThreads(){
-        for(int i = 0; i < tickThreads.size(); i++){
-            TickThread tickThread = tickThreads.get(i);
-            tickThread.thisThread = new Thread(() -> tickThread.accept(this), tickThread.id);
-            tickThread.thisThread.start();
+        synchronized(tickThreads){
+            for(int i = 0; i < tickThreads.size(); i++){
+                TickThread tickThread = tickThreads.get(i);
+                tickThread.thisThread = new Thread(() -> tickThread.accept(this), tickThread.id);
+                tickThread.thisThread.start();
+            }
         }
     }
 }
