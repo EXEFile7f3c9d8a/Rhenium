@@ -13,35 +13,33 @@ import java.util.function.BooleanSupplier;
 
 import static dev.exefile7f.rheniumcore.StaticResource.*;
 
-public class Mixins{
+public final class Mixins{
     @Mixin(ServerWorld.class)
-    public static class ServerWorldMixin{
+    public static final class ServerWorldMixin{
         @Inject(
                 method = "tick",
                 at = @At(
                         value = "INVOKE",
-                        target = "Lnet/minecraft/util/profiler/Profiler;pop()V",
-                        ordinal = 6,
-                        shift = At.Shift.BEFORE
+                        target = "Lnet/minecraft/world/EntityList;forEach(Ljava/util/function/Consumer;)V",
+                        ordinal = 0,
+                        shift = At.Shift.AFTER
                 )
         )
-        public void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
-
+        public void entitiesTickWrite(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
+            THREAD_POOL.tasks.writeAll(WRITE_FUNCTIONS, THREAD_POOL);
         }
-
     }
-
-    public static class SensorsMixins{
+    public static final class SensorsMixins{
         @Mixin(NearestPlayersSensor.class)
-        public static class NearestPlayersSensorMixin{
+        public static final class NearestPlayersSensorMixin{
             @Inject(method = "sense", at = @At("HEAD"), cancellable = true)
             public void sense(ServerWorld world, LivingEntity entity, CallbackInfo ci){
                 Tasks tasks = THREAD_POOL.tasks;
-                Tasks.Task task = new Tasks.Task();
+                Tasks.Task task = tasks.getNearestEmptyTask();
                 task.input[0] = ci;
                 task.input[1] = world;
                 task.input[2] = entity;
-                tasks.tasks.set(tasks.size.getAndIncrement(), task);
+                tasks.addTask(task);
                 ci.cancel();
             }
         }
