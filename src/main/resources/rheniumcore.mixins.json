@@ -3,7 +3,7 @@
     "package": "dev.exefile7f.rheniumcore.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
-        "Mixins$SensorsMixin$NearestPlayersSensorMixin",
+        "Mixins$SensorsMixins$NearestPlayersSensorMixin",
         "Mixins$ServerWorldMixin"
     ],
     "injectors": {
