@@ -19,7 +19,7 @@ public class ThreadPool{
         }
     }
     public void replaceTasks(Tasks tsk){
-        synchronized(tasks){
+        synchronized(lock){
             this.tasks = tsk;
         }
     }
