@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.locks.LockSupport;
 
 public class Lock{
-    public final List<Thread> threads = new ArrayList<>();
+    public List<Thread> threads = new ArrayList<>();
     public void await(){
         synchronized(threads){
             threads.add(Thread.currentThread());
