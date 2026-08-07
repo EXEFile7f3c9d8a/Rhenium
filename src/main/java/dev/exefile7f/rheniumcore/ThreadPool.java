@@ -32,6 +32,7 @@ public class ThreadPool{
     public void pause(){
         synchronized(lock){
             this.status = NO_TASK;
+            tasks.notify();
         }
     }
     public void kill(){

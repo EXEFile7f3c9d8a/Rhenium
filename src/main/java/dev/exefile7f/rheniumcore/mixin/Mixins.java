@@ -4,7 +4,9 @@ import dev.exefile7f.rheniumcore.Tasks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.sensor.NearestPlayersSensor;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,7 +17,9 @@ import static dev.exefile7f.rheniumcore.StaticResource.*;
 
 public final class Mixins{
     @Mixin(ServerWorld.class)
-    public static final class ServerWorldMixin{
+    public static abstract class ServerWorldMixin{
+        @Shadow public abstract void cacheStructures(Chunk chunk);
+
         @Inject(
                 method = "tick",
                 at = @At(
@@ -26,6 +30,12 @@ public final class Mixins{
                 )
         )
         public void entitiesTickWrite(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
+            THREAD_POOL.launch();
+            try{
+                THREAD_POOL.tasks.wait();
+            }catch(InterruptedException e){
+                throw new RuntimeException(e);
+            }
             THREAD_POOL.tasks.writeAll(WRITE_FUNCTIONS, THREAD_POOL);
         }
     }
