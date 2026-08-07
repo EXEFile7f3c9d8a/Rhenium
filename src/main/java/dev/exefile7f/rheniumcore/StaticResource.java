@@ -99,16 +99,26 @@ public interface StaticResource{
     static int getCores(){
         return Runtime.getRuntime().availableProcessors();
     }
-
     static Path getConfigPath(){
         return FabricLoader.getInstance().getConfigDir();
     }
 
     static <T> List<T> fillList(List<T> t, int size){
+        return fillList(t, size, null);
+    }
+    static <T> List<T> fillList(List<T> t, int size, T sample){
         t.clear();
         for(int i = 0; i < size; i++){
-            t.add(null);
+            t.add(sample);
         }
         return t;
+    }
+    static <T> T[] replaceArrayNull(T[] array, T sample){
+        for(int i = 0; i < array.length; i++){
+            if(array[i] == null){
+                array[i] = sample;
+            }
+        }
+        return array;
     }
 }

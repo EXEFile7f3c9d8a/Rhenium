@@ -58,7 +58,11 @@ public class Tasks{
     public AtomicInteger located = new AtomicInteger(0);
     public AtomicInteger size = new AtomicInteger(0);
     public void reset(){
-        size.set(0);
+        synchronized(tasks){
+            Arrays.fill(tasks, null);
+            located.set(0);
+            size.set(0);
+        }
     }
     public boolean isDone(){
         return isDone(located.get());
@@ -70,28 +74,30 @@ public class Tasks{
         return tasks[size.get()];
     }
     public Tasks addTask(Task tsk){
-        checkSizeLimit();
         synchronized(tasks){
+            checkSizeLimit();
             tasks[size.getAndIncrement()] = tsk;
         }
         return this;
     }
     public void checkSizeLimit(){
         if(size.get() >= tasks.length){
-            tasks = Arrays.copyOf(tasks, (tasks.length) * 2);
+            tasks = replaceArrayNull(Arrays.copyOf(tasks, (tasks.length) * 2), new Task());
         }
     }
     public void nextTask(List<Consumer<Task>> COMPUTE_FUNCTIONS){
         nextTask(COMPUTE_FUNCTIONS, null);
     }
     public void nextTask(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool){
-        int i = this.located.getAndIncrement();
-        if(isDone()){
-            if(pool != null)pool.pause();
-            return;
+        synchronized(tasks){
+            int i = this.located.getAndIncrement();
+            if(isDone()){
+                if(pool != null)pool.pause();
+                return;
+            }
+            Task current = tasks[i];
+            COMPUTE_FUNCTIONS.get(current.computeType).accept(current);
         }
-        Task current = tasks[i];
-        COMPUTE_FUNCTIONS.get(current.computeType).accept(current);
     }
     public void runAllTask(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool){
         int t = this.located.get();
