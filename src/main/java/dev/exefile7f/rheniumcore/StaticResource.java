@@ -18,26 +18,27 @@ import static net.minecraft.entity.ai.brain.sensor.Sensor.*;
 
 public interface StaticResource{
     int CPU_CORES = getCores();
-    ThreadPool THREAD_POOL = new ThreadPool();
     Path CONFIG_PATH = getConfigPath();
 
     //Task Status
-    byte NONE = 0;
-    byte CALCULATING = 1;
-    byte FINISHED = 2;
+    int NONE = 0;
+    int CALCULATING = 1;
+    int FINISHED = 2;
 
     //Tick Pool Status
-    byte STOP = - 1;
-    byte NO_TASK = 0;
-    byte HAVE_TASK = 1;
+    int STOP = - 1;
+    int NO_TASK = 0;
+    int HAVE_TASK = 1;
 
     int COMPUTE_SIZE = 5;
     List<Consumer<Tasks.Task>> COMPUTE_FUNCTIONS = COMPUTE_FUNCTIONS();
     List<Consumer<Tasks.Task>> WRITE_FUNCTIONS = WRITE_FUNCTIONS();
 
+    int NEAREST_PLAYER_SENSOR = 0;
+
     static List<Consumer<Tasks.Task>> COMPUTE_FUNCTIONS(){
         List<Consumer<Tasks.Task>> t = fillList(new ArrayList<>(), COMPUTE_SIZE);
-        t.set(0, (s) -> {//NearestPlayersSensor
+        t.set(NEAREST_PLAYER_SENSOR, (s) -> {
             ServerWorld world = (ServerWorld) s.input[1];
             LivingEntity entity = (LivingEntity) s.input[2];
             List<PlayerEntity> list = world.getPlayers()
@@ -74,7 +75,7 @@ public interface StaticResource{
 
     static List<Consumer<Tasks.Task>> WRITE_FUNCTIONS(){
         List<Consumer<Tasks.Task>> t = fillList(new ArrayList<>(), COMPUTE_SIZE);
-        t.set(0, (s) -> {//NearestPlayersSensor
+        t.set(NEAREST_PLAYER_SENSOR, (s) -> {
             Brain<?> brain = ((LivingEntity)s.input[2]).getBrain();
             brain.remember((MemoryModuleType<List<PlayerEntity>>)s.output[0], (List<PlayerEntity>)s.output[1]);
             brain.remember((MemoryModuleType<PlayerEntity>)s.output[2], (PlayerEntity)s.output[3]);

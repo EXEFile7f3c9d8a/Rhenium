@@ -55,17 +55,15 @@ public class Tasks{
         }
     }
     public Task[] tasks = new Task[512];
-    public AtomicInteger located = new AtomicInteger(0);
+    public AtomicInteger taskCounter = new AtomicInteger(0);
+    public AtomicInteger writeCounter = new AtomicInteger(0);
     public AtomicInteger size = new AtomicInteger(0);
     public void reset(){
         synchronized(tasks){
             Arrays.fill(tasks, null);
-            located.set(0);
+            taskCounter.set(0);
             size.set(0);
         }
-    }
-    public boolean isDone(){
-        return isDone(located.get());
     }
     public boolean isDone(int i){
         return i >= this.size.get();
@@ -85,13 +83,10 @@ public class Tasks{
             tasks = replaceArrayNull(Arrays.copyOf(tasks, (tasks.length) * 2), new Task());
         }
     }
-    public void nextTask(List<Consumer<Task>> COMPUTE_FUNCTIONS){
-        nextTask(COMPUTE_FUNCTIONS, null);
-    }
-    public void nextTask(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool){
+    public void nextTask(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){
         synchronized(tasks){
-            int i = this.located.getAndIncrement();
-            if(isDone()){
+            int i = counter.getAndIncrement();
+            if(isDone(i)){
                 if(pool != null)pool.pause();
                 return;
             }
@@ -99,16 +94,11 @@ public class Tasks{
             COMPUTE_FUNCTIONS.get(current.computeType).accept(current);
         }
     }
-    public void runAllTask(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool){
-        int t = this.located.get();
-        while(isDone()){
-            nextTask(COMPUTE_FUNCTIONS, pool);
+    public void taskAll(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){
+        synchronized(taskCounter){
+            while(!isDone(this.taskCounter.get())){
+                nextTask(COMPUTE_FUNCTIONS, pool, counter);
+            }
         }
-    }
-    public void nextWrite(List<Consumer<Task>> WRITE_FUNCTIONS, ThreadPool pool){
-
-    }
-    public void writeAll(List<Consumer<Task>> WRITE_FUNCTIONS, ThreadPool pool){
-
     }
 }

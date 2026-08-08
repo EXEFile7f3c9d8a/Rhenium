@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static dev.exefile7f.rheniumcore.StaticResource.*;
+import static dev.exefile7f.rheniumcore.mixin.Mixins.THREAD_POOL;
 
 public class RheniumCore implements ModInitializer {
 	public static final String MOD_ID = "rheniumcore";

@@ -17,7 +17,7 @@ public class TickThread implements Consumer<ThreadPool> {
                 pool.lock.await();
                 continue;
             }
-            pool.tasks.nextTask(COMPUTE_FUNCTIONS, pool);
+            pool.tasks.nextTask(COMPUTE_FUNCTIONS, pool, pool.tasks.taskCounter);
         }
         RheniumCore.LOGGER.info("{} Shutting down!", this.id);
     }
