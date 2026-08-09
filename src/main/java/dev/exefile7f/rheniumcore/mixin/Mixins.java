@@ -7,18 +7,16 @@ import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.ArmadilloScareDetectedSensor;
 import net.minecraft.entity.ai.brain.sensor.NearestPlayersSensor;
 import net.minecraft.server.world.ServerWorld;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 import static dev.exefile7f.rheniumcore.StaticResource.*;
 
@@ -46,6 +44,7 @@ public final class Mixins{
             THREAD_POOL.tasks.taskAll(WRITE_FUNCTIONS, THREAD_POOL, THREAD_POOL.tasks.writeCounter);
         }
     }
+
     public static final class SensorsMixins{
         @Mixin(NearestPlayersSensor.class)
         public static final class NearestPlayersSensorMixin{
@@ -61,24 +60,35 @@ public final class Mixins{
                 ci.cancel();
             }
         }
+
         @Mixin(ArmadilloScareDetectedSensor.class)
-        public static final class ArmadilloScareDetectedSensorMixins{
+        public static final class ArmadilloScareDetectedSensorMixins<T extends LivingEntity>{
             @Final @Shadow
-            private final BiPredicate<T, LivingEntity> threateningEntityPredicate;
+            private BiPredicate<T, LivingEntity> threateningEntityPredicate;
+            @Final @Shadow
+            private Predicate<T> canRollUpPredicate;
+            @Final @Shadow
+            private MemoryModuleType<Boolean> memoryModuleType;
+            @Final @Shadow
+            private int expiry;
 
             @Inject(
                     method = "tryDetectThreat",
-                    at = @At("HEAD")
-            )
-            public void tryDetectThreat(T entity, CallbackInfo ci) {
+                    at = @At("HEAD"),
+                    cancellable = true)
+            public void tryDetectThreat(T entity, CallbackInfo ci){
                 Optional<List<LivingEntity>> optional = entity.getBrain().getOptionalRegisteredMemory(MemoryModuleType.MOBS);
-                if (!optional.isEmpty()) {
-                    boolean bl = ((List)optional.get()).stream().anyMatch((threat) -> this.threateningEntityPredicate.test(entity, threat));
-                    if (bl) {
+                if(! optional.isEmpty()){
+                    boolean bl = ((List) optional.get()).stream().anyMatch((threat) -> this.threateningEntityPredicate.test(entity, (LivingEntity)threat));
+                    if(bl){
                         this.onDetected(entity);
                     }
-
                 }
+                ci.cancel();
+            }
+            @Shadow
+            public void onDetected(T entity) {
+                entity.getBrain().remember(this.memoryModuleType, true, (long)this.expiry);
             }
         }
     }
