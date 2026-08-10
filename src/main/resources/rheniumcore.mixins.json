@@ -3,9 +3,9 @@
     "package": "dev.exefile7f.rheniumcore.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
-        "Mixins$SensorsMixins$ArmadilloScareDetectedSensorMixins",
-        "Mixins$SensorsMixins$NearestPlayersSensorMixin",
-        "Mixins$ServerWorldMixin"
+        "sensor.ArmadilloScareDetectedSensorMixins",
+        "sensor.NearestPlayersSensorMixin",
+        "server.ServerWorldMixin"
     ],
     "injectors": {
         "defaultRequire": 1
