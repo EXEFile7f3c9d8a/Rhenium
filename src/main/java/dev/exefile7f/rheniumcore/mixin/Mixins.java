@@ -12,11 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
-import java.util.function.Predicate;
 
 import static dev.exefile7f.rheniumcore.StaticResource.*;
 
@@ -52,10 +49,10 @@ public final class Mixins{
             public void sense(ServerWorld world, LivingEntity entity, CallbackInfo ci){
                 Tasks tasks = THREAD_POOL.tasks;
                 Tasks.Task task = tasks.getNearestEmptyTask();
-                task.input[0] = ci;
-                task.input[1] = world;
-                task.input[2] = entity;
-                task.computeType = 0;
+                task.putInput(ci)
+                        .putInput(world)
+                        .putInput(entity)
+                        .setComputeType(NEAREST_PLAYER_SENSOR);
                 tasks.addTask(task);
                 ci.cancel();
             }
@@ -66,8 +63,6 @@ public final class Mixins{
             @Final @Shadow
             private BiPredicate<T, LivingEntity> threateningEntityPredicate;
             @Final @Shadow
-            private Predicate<T> canRollUpPredicate;
-            @Final @Shadow
             private MemoryModuleType<Boolean> memoryModuleType;
             @Final @Shadow
             private int expiry;
@@ -77,18 +72,16 @@ public final class Mixins{
                     at = @At("HEAD"),
                     cancellable = true)
             public void tryDetectThreat(T entity, CallbackInfo ci){
-                Optional<List<LivingEntity>> optional = entity.getBrain().getOptionalRegisteredMemory(MemoryModuleType.MOBS);
-                if(! optional.isEmpty()){
-                    boolean bl = ((List) optional.get()).stream().anyMatch((threat) -> this.threateningEntityPredicate.test(entity, (LivingEntity)threat));
-                    if(bl){
-                        this.onDetected(entity);
-                    }
-                }
+                Tasks tasks = THREAD_POOL.tasks;
+                Tasks.Task task = tasks.getNearestEmptyTask();
+                task.putInput(ci)
+                        .putInput(entity)
+                        .putInput(this.threateningEntityPredicate)
+                        .putInput(this.memoryModuleType)
+                        .putInput(expiry)
+                        .setComputeType(ARMADILLO_SCARE_DETECTED_SENSOR);
+                tasks.addTask(task);
                 ci.cancel();
-            }
-            @Shadow
-            public void onDetected(T entity) {
-                entity.getBrain().remember(this.memoryModuleType, true, (long)this.expiry);
             }
         }
     }

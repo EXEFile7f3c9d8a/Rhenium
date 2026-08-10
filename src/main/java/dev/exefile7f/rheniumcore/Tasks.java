@@ -35,7 +35,7 @@ public class Tasks{
             }
             return this;
         }
-        public Task addOutput(Object obj){
+        public Task putOutput(Object obj){
             synchronized(input){
                 this.output[output.length - 1] = obj;
             }

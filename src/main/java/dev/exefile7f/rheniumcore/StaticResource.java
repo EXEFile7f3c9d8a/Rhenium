@@ -11,6 +11,7 @@ import net.minecraft.server.world.ServerWorld;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ public interface StaticResource{
     List<Consumer<Tasks.Task>> WRITE_FUNCTIONS = WRITE_FUNCTIONS();
 
     int NEAREST_PLAYER_SENSOR = 0;
+    int ARMADILLO_SCARE_DETECTED_SENSOR = 1;
 
     static List<Consumer<Tasks.Task>> COMPUTE_FUNCTIONS(){
         List<Consumer<Tasks.Task>> t = fillList(new ArrayList<>(), COMPUTE_SIZE);
@@ -58,16 +60,28 @@ public interface StaticResource{
             s.output[6] = MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER;
             s.output[7] = list3.isEmpty() ? null : list3.get(0);
         });
-        t.set(1, (s) -> {//
+        t.set(ARMADILLO_SCARE_DETECTED_SENSOR, (s) -> {
+            LivingEntity entity = (LivingEntity)s.input[1];
+            Optional<List<LivingEntity>> optional = entity.getBrain().getOptionalRegisteredMemory(MemoryModuleType.MOBS);
+            if(! optional.isEmpty()){
+                boolean bl = ((List) optional.get()).stream().anyMatch((threat) -> ((BiPredicate<LivingEntity, LivingEntity>)s.input[2]).test(entity, (LivingEntity)threat));
+                if(bl){
+                    s.output[0] = true;
+                    s.output[1] = entity;
+                    s.output[2] = s.input[3];
+                    s.output[3] = s.input[4];
+                }else{
+                    s.output[0] = false;
+                }
+            }
+        });
+        t.set(2, (s) -> {
 
         });
-        t.set(2, (s) -> {//
+        t.set(3, (s) -> {
 
         });
-        t.set(3, (s) -> {//
-
-        });
-        t.set(4, (s) -> {//
+        t.set(4, (s) -> {
 
         });
         return t;
@@ -82,16 +96,18 @@ public interface StaticResource{
             brain.remember((MemoryModuleType<List<PlayerEntity>>)s.output[4], (List<PlayerEntity>)s.output[5]);
             brain.remember((MemoryModuleType<PlayerEntity>)s.output[6], (PlayerEntity)s.output[7]);
         });
-        t.set(1, (s) -> {//
+        t.set(ARMADILLO_SCARE_DETECTED_SENSOR, (s) -> {
+            if((boolean)s.output[0]){
+                ((LivingEntity)s.output[1]).getBrain().remember((MemoryModuleType<Boolean>)s.output[2], true, (long)s.output[3]);
+            }
+        });
+        t.set(2, (s) -> {
 
         });
-        t.set(2, (s) -> {//
+        t.set(3, (s) -> {
 
         });
-        t.set(3, (s) -> {//
-
-        });
-        t.set(4, (s) -> {//
+        t.set(4, (s) -> {
 
         });
         return t;
