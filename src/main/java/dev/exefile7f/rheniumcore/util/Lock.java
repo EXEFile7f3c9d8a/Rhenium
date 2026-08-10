@@ -1,4 +1,4 @@
-package dev.exefile7f.rheniumcore;
+package dev.exefile7f.rheniumcore.util;
 
 import java.util.ArrayList;
 import java.util.List;

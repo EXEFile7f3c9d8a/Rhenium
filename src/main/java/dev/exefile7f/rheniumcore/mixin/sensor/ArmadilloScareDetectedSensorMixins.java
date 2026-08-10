@@ -1,6 +1,6 @@
 package dev.exefile7f.rheniumcore.mixin.sensor;
 
-import dev.exefile7f.rheniumcore.Tasks;
+import dev.exefile7f.rheniumcore.threadpool.Tasks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.ArmadilloScareDetectedSensor;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.BiPredicate;
 
 import static dev.exefile7f.rheniumcore.RheniumCore.THREAD_POOL;
-import static dev.exefile7f.rheniumcore.StaticResource.ARMADILLO_SCARE_DETECTED_SENSOR;
+import static dev.exefile7f.rheniumcore.statics.StaticResource.ARMADILLO_SCARE_DETECTED_SENSOR;
 
 @Mixin(ArmadilloScareDetectedSensor.class)
 public final class ArmadilloScareDetectedSensorMixins<T extends LivingEntity>{

@@ -1,9 +1,12 @@
-package dev.exefile7f.rheniumcore;
+package dev.exefile7f.rheniumcore.threadpool;
+
+import dev.exefile7f.rheniumcore.util.Lock;
+import dev.exefile7f.rheniumcore.util.SimpleId;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.exefile7f.rheniumcore.StaticResource.*;
+import static dev.exefile7f.rheniumcore.statics.StaticResource.*;
 
 public class ThreadPool{
     public static SimpleId ID = new SimpleId();

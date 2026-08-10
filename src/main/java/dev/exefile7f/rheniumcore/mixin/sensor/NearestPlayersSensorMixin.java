@@ -1,6 +1,6 @@
 package dev.exefile7f.rheniumcore.mixin.sensor;
 
-import dev.exefile7f.rheniumcore.Tasks;
+import dev.exefile7f.rheniumcore.threadpool.Tasks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.sensor.NearestPlayersSensor;
 import net.minecraft.server.world.ServerWorld;
@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static dev.exefile7f.rheniumcore.RheniumCore.THREAD_POOL;
-import static dev.exefile7f.rheniumcore.StaticResource.NEAREST_PLAYER_SENSOR;
+import static dev.exefile7f.rheniumcore.statics.StaticResource.NEAREST_PLAYER_SENSOR;
 
 @Mixin(NearestPlayersSensor.class)
 public final class NearestPlayersSensorMixin{

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.BooleanSupplier;
 
 import static dev.exefile7f.rheniumcore.RheniumCore.THREAD_POOL;
-import static dev.exefile7f.rheniumcore.StaticResource.WRITE_FUNCTIONS;
+import static dev.exefile7f.rheniumcore.statics.StaticResource.WRITE_FUNCTIONS;
 
 @Mixin(ServerWorld.class)
 public final class ServerWorldMixin{

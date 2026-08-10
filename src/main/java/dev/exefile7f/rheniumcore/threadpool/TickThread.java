@@ -1,8 +1,10 @@
-package dev.exefile7f.rheniumcore;
+package dev.exefile7f.rheniumcore.threadpool;
+
+import dev.exefile7f.rheniumcore.RheniumCore;
 
 import java.util.function.Consumer;
 
-import static dev.exefile7f.rheniumcore.StaticResource.*;
+import static dev.exefile7f.rheniumcore.statics.StaticResource.*;
 
 public class TickThread implements Consumer<ThreadPool> {
     public final String id;
