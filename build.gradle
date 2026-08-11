@@ -37,8 +37,8 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-    modImplementation "maven.modrinth:mOgUt4GM:Tyk71iSw"//mod menu
-    modImplementation "maven.modrinth:9s6osm5g:xuX40TN5"//cloth config
+    modImplementation "maven.modrinth:mOgUt4GM:Tyk71iSw"//mod menu v17.0.0 for 1.21.11
+    modImplementation "maven.modrinth:9s6osm5g:xuX40TN5"//cloth config [Fabric 1.21.11] v21.11.153
     implementation 'com.google.code.gson:gson:2.11.0'//gson
 }
 

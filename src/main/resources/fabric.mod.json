@@ -25,7 +25,7 @@
             "dev.exefile7f.rheniumcore.client.RheniumCoreDataGenerator"
         ],
         "modmenu": [
-            "dev.exefile7f.rheniumcore.client.ModMenu"
+            "dev.exefile7f.rheniumcore.client.ModMenuIntegration"
         ]
     },
     "mixins": [
