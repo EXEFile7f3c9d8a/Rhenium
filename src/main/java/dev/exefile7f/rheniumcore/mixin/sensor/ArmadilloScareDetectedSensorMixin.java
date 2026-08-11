@@ -17,7 +17,7 @@ import static dev.exefile7f.rheniumcore.RheniumCore.THREAD_POOL;
 import static dev.exefile7f.rheniumcore.statics.StaticResource.ARMADILLO_SCARE_DETECTED_SENSOR;
 
 @Mixin(ArmadilloScareDetectedSensor.class)
-public final class ArmadilloScareDetectedSensorMixins<T extends LivingEntity>{
+public final class ArmadilloScareDetectedSensorMixin<T extends LivingEntity>{
     @Final
     @Shadow
     private BiPredicate<T, LivingEntity> threateningEntityPredicate;
@@ -31,7 +31,8 @@ public final class ArmadilloScareDetectedSensorMixins<T extends LivingEntity>{
     @Inject(
             method = "tryDetectThreat",
             at = @At("HEAD"),
-            cancellable = true)
+            cancellable = true
+    )
     public void tryDetectThreat(T entity, CallbackInfo ci){
         Tasks tasks = THREAD_POOL.tasks;
         Tasks.Task task = tasks.getNearestEmptyTask();

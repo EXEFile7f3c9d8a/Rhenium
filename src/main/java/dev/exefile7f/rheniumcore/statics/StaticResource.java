@@ -38,7 +38,7 @@ public interface StaticResource{
 
     int NEAREST_PLAYER_SENSOR = 0;
     int ARMADILLO_SCARE_DETECTED_SENSOR = 1;
-
+    int NEAREST_LIVING_ENTITIES_SENSOR = 2;
     static List<Consumer<Tasks.Task>> COMPUTE_FUNCTIONS(){
         List<Consumer<Tasks.Task>> t = fillList(new ArrayList<>(), COMPUTE_SIZE);
         t.set(NEAREST_PLAYER_SENSOR, (s) -> {
