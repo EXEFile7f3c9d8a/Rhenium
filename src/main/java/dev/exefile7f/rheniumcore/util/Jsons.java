@@ -77,6 +77,7 @@ public class Jsons{
             NONE,
             NAME,
             AFTER_NAME,
+            AFTER_STATEMENT,
             VALUE_UNKNOW,
             VALUE_STRING,
             VALUE_NUMBER,
@@ -152,6 +153,7 @@ public class Jsons{
                         case '"' -> {
                             deque.element().setValue(sb.toString());
                             sb.setLength(0);
+                            status = Status.AFTER_STATEMENT;
                         }
                         case '\n' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
                         default -> sb.append(c);
