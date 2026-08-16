@@ -3,16 +3,9 @@ package dev.exefile7f.rheniumcore.util;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Jsons{
-    private Path file;
-    private String indentation = "    ";
-    private JsonValue box;
-
     public static class JsonValue{
         private String name;
         private Object value;
@@ -27,6 +20,10 @@ public class Jsons{
         }
         public JsonValue setName(String name){
             this.name = name;
+            return this;
+        }
+        public JsonValue setParent(Object parent){
+            this.parent = parent;
             return this;
         }
         public Object getValue(){
@@ -62,6 +59,10 @@ public class Jsons{
             return value == null;
         }
     }
+    private Path file;
+    private String indentation = "    ";
+    private JsonValue box;
+
     public Jsons(){}
     public Jsons(Path file){
         setFile(file);
@@ -75,38 +76,108 @@ public class Jsons{
             START,
             NONE,
             NAME,
+            AFTER_NAME,
+            VALUE_UNKNOW,
             VALUE_STRING,
             VALUE_NUMBER,
             VALUE_MAP,
             VALUE_ARRAY,
-            VALUE_BOOLEAN,
-            VALUE_NULL_POSSIBLE,
-            VALUE_NULL,
-            VALUE_UNKNOW,
-
+            VALUE_BOOLEAN_TRUE,
+            VALUE_BOOLEAN_FALSE,
+            VALUE_NULL;
+            int index = 1;
+            void reset(){
+                index = 1;
+            }
         }
         String file = Files.readString(this.file);
         Status status = Status.START;
         Deque<JsonValue> deque = new ArrayDeque<>();
-        JsonValue json = new JsonValue();
+        JsonValue json = new JsonValue().setParent(null);
         deque.push(json);
+        StringBuilder sb = new StringBuilder();
         for(int i = 0; i < file.length(); i++){
             char c = file.charAt(i);
             switch(status){
                 case START, NONE -> {
                     switch(c){
-                        case ' ', '\n' -> {
-                        }
+                        case ' ', '\n' -> {}
                         case '{' -> status = Status.VALUE_MAP;
                         case '"' -> status = Status.NAME;
-                        default -> throw new IllegalArgumentException(
-                                "Unexcepted character at " +
-                                        Strings.toLineCharFormat(file, i) +
-                                        " -> " +
-                                        Strings.getNearCharacters(file, i, 10));
+                        default -> throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                    }
+                }
+                case NAME -> {
+                    switch(c){
+                        case '"' -> {
+                            deque.element().setName(sb.toString());
+                            sb.setLength(0);
+                            status = Status.AFTER_NAME;
+                        }
+                        case '\n', '\r' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
+                        default -> sb.append(c);
+                    }
+                }
+                case AFTER_NAME -> {
+                    switch(c){
+                        case ' ', '\n' -> {}
+                        case ':' -> status = Status.VALUE_UNKNOW;
+                        default -> throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                    }
+                }
+                case VALUE_UNKNOW -> {
+                    switch(c){
+                        case ' ', '\n' -> {}
+                        case '"' -> status = Status.VALUE_STRING;
+                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' -> {
+                            sb.append(c);
+                            status = Status.VALUE_NUMBER;
+                        }
+                        case '{' -> {
+                            deque.element().setValue(new HashMap<String, JsonValue>());
+                            status = Status.VALUE_MAP;
+                        }
+                        case '[' -> {
+                            deque.element().setValue(new ArrayList<JsonValue>());
+                            status = Status.VALUE_ARRAY;
+                        }
+                        case 't' -> status = Status.VALUE_BOOLEAN_TRUE;
+                        case 'f' -> status = Status.VALUE_BOOLEAN_FALSE;
+                        case 'n' -> status = Status.VALUE_NULL;
+                        default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                    }
+                }
+                case VALUE_STRING -> {
+                    switch(c){
+                        case '"' -> {
+                            deque.element().setValue(sb.toString());
+                            sb.setLength(0);
+                        }
+                        case '\n' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
+                        default -> sb.append(c);
+                    }
+                }
+                case VALUE_NUMBER -> {
+                    switch(c){
+                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', 'e', 'E', '.' -> {
+
+                        }
                     }
                 }
             }
+        }
+    }
+    private static final class Exceptions{
+        private Exceptions(){}
+        public static String unexpectedChar(char c, String file, int i){
+            return "Unexpected character '" + c + "' at " +
+                    Strings.toLineCharFormat(file, i) +
+                    " (index " + i + ")";
+        }
+        public static String unexpectedLineBreak(String file, int i){
+            return "Unexpected line break at " +
+                    Strings.toLineCharFormat(file, i) +
+                    " (index " + i + ")";
         }
     }
     public boolean isWritable(){
