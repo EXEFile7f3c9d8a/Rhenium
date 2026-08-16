@@ -1,5 +1,6 @@
 package dev.exefile7f.rheniumcore.statics;
 
+import dev.exefile7f.rheniumcore.RheniumCore;
 import dev.exefile7f.rheniumcore.threadpool.Tasks;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.LivingEntity;
@@ -118,7 +119,7 @@ public interface StaticResource{
         return Runtime.getRuntime().availableProcessors();
     }
     static Path getConfigPath(){
-        return FabricLoader.getInstance().getConfigDir();
+        return Path.of(FabricLoader.getInstance().getConfigDir().toString(), "\\" + RheniumCore.MOD_ID) ;
     }
 
     static <T> List<T> fillList(List<T> t, int size){

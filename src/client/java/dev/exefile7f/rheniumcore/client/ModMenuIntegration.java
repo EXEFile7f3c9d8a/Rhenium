@@ -9,8 +9,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;
 
-import static dev.exefile7f.rheniumcore.RheniumCore.LOGGER;
-
 @Environment(EnvType.CLIENT)
 public class ModMenuIntegration implements ModMenuApi{
 
@@ -23,11 +21,12 @@ public class ModMenuIntegration implements ModMenuApi{
                     .solidBackground();
             ConfigEntryBuilder toggle = builder.entryBuilder();
             ConfigCategory general = builder.getOrCreateCategory(Text.of("catagory"));
-            general.addEntry(toggle.startBooleanToggle(Text.of("switch"), false)
+            general.addEntry(toggle.startBooleanToggle(Text.of("switch"), true)
                     .setDefaultValue(false)
-                    .setSaveConsumer((value) ->{
-                        LOGGER.info(String.valueOf(value));
+                    .setSaveConsumer((value) -> {
+
                     }).build());
+
             return builder.build();
         };
     }
