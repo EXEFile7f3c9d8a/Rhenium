@@ -12,11 +12,16 @@ import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static dev.exefile7f.rheniumcore.util.Arrays.fillList;
+import static dev.exefile7f.rheniumcore.util.Systems.getCores;
 import static net.minecraft.entity.ai.brain.sensor.Sensor.*;
 
 public interface StaticResource{
@@ -65,7 +70,7 @@ public interface StaticResource{
         t.set(ARMADILLO_SCARE_DETECTED_SENSOR, (s) -> {
             LivingEntity entity = (LivingEntity)s.input[1];
             Optional<List<LivingEntity>> optional = entity.getBrain().getOptionalRegisteredMemory(MemoryModuleType.MOBS);
-            if(! optional.isEmpty()){
+            if(!optional.isEmpty()){
                 boolean bl = ((List) optional.get()).stream().anyMatch((threat) -> ((BiPredicate<LivingEntity, LivingEntity>)s.input[2]).test(entity, (LivingEntity)threat));
                 if(bl){
                     s.output[0] = true;
@@ -114,28 +119,13 @@ public interface StaticResource{
         });
         return t;
     }
-
-    static int getCores(){
-        return Runtime.getRuntime().availableProcessors();
-    }
     static Path getConfigPath(){
         return Path.of(FabricLoader.getInstance().getConfigDir().toString(), "\\" + RheniumCore.MOD_ID) ;
     }
-
-    static <T> List<T> fillList(List<T> t, int size){
-        return fillList(t, size, null);
-    }
-    static <T> List<T> fillList(List<T> t, int size, T sample){
-        t.clear();
-        for(int i = 0; i < size; i++){
-            t.add(sample);
-        }
-        return t;
-    }
-    static <T> T[] replaceArrayNull(T[] array, T sample){
+    static Tasks.Task[] replaceArrayNull(Tasks.Task[] array){
         for(int i = 0; i < array.length; i++){
             if(array[i] == null){
-                array[i] = sample;
+                array[i] = new Tasks.Task();
             }
         }
         return array;

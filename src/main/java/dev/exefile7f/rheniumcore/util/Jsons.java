@@ -8,7 +8,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
-public class SimpleJson{
+public class Jsons{
     private Path file;
     private String indentation = "    ";
     private JsonValue box;
@@ -62,8 +62,8 @@ public class SimpleJson{
             return value == null;
         }
     }
-    public SimpleJson(){}
-    public SimpleJson(Path file){
+    public Jsons(){}
+    public Jsons(Path file){
         setFile(file);
     }
     /**
@@ -112,20 +112,20 @@ public class SimpleJson{
     public boolean isWritable(){
         return Files.isWritable(file);
     }
-    public SimpleJson setFile(Path file){
+    public Jsons setFile(Path file){
         if(Files.isDirectory(file)) throw new IllegalArgumentException("Not a file: Path leads to a directory");
         else this.file = file;
         return this;
     }
-    public SimpleJson setIndentation(String str){
+    public Jsons setIndentation(String str){
         this.indentation = str;
         return this;
     }
-    public SimpleJson setIndentation(int length){
+    public Jsons setIndentation(int length){
         this.indentation = " ".repeat(length);
         return this;
     }
-    public SimpleJson autoCreate(){
+    public Jsons autoCreate(){
         try{
             Files.createFile(file);
         }catch(IOException e){

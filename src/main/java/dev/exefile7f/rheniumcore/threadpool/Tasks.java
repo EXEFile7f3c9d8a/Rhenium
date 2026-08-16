@@ -80,7 +80,7 @@ public class Tasks{
     }
     public void checkSizeLimit(){
         if(size.get() >= tasks.length){
-            tasks = replaceArrayNull(Arrays.copyOf(tasks, (tasks.length) * 2), new Task());
+            tasks = replaceArrayNull(Arrays.copyOf(tasks, (tasks.length) * 2));
         }
     }
     public void nextTask(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){

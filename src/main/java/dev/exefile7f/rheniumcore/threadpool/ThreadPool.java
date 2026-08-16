@@ -1,7 +1,7 @@
 package dev.exefile7f.rheniumcore.threadpool;
 
 import dev.exefile7f.rheniumcore.util.Lock;
-import dev.exefile7f.rheniumcore.util.SimpleId;
+import dev.exefile7f.rheniumcore.util.Id;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 import static dev.exefile7f.rheniumcore.statics.StaticResource.*;
 
 public class ThreadPool{
-    public static SimpleId ID = new SimpleId();
+    public static Id ID = new Id();
     public final int id;
     public byte status = NO_TASK;
     public List<TickThread> tickThreads = new ArrayList<>();
