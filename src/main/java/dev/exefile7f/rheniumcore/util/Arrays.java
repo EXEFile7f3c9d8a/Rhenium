@@ -2,7 +2,8 @@ package dev.exefile7f.rheniumcore.util;
 
 import java.util.List;
 
-public class Arrays{
+public final class Arrays{
+    private Arrays(){}
     public static <T> List<T> fillList(List<T> t, int size){
         return fillList(t, size, null);
     }

@@ -99,8 +99,8 @@ public class Json{
                 index = 1;
             }
         }
-        int AFTER_BACKSLASH = 1 << 0;
-        int tags = 0;
+        BitMask tags = new BitMask();
+        int AFTER_BACKSLASH = tags.create();
         String file = Files.readString(this.file);
         Status status = Status.START;
         Deque<JsonValue> deque = new ArrayDeque<>();

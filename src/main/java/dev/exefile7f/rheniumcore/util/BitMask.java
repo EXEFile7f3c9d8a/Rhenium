@@ -1,21 +1,21 @@
 package dev.exefile7f.rheniumcore.util;
 
 public class BitMask{
-    private long nextBits;
-    private long bits;
+    private int nextBits;
+    private int bits;
     public BitMask(){}
-    public long create(){
+    public int create(){
         if(nextBits >= 64)return 0;
-        return 1L << nextBits++;
+        return 1 << nextBits++;
     }
-    public boolean isSet(long num){
+    public boolean isSet(int num){
         return (bits & num) != 0;
     }
-    public BitMask enable(long num){
+    public BitMask enable(int num){
         bits |= num;
         return this;
     }
-    public BitMask disable(long num){
+    public BitMask disable(int num){
         bits &= ~num;
         return this;
     }

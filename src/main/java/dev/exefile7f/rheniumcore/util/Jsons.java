@@ -9,13 +9,13 @@ public final class Jsons{
             DECIMAL,
             EXPONENT,
         }
-        int AFTER_NEGATIVE = 1 << 0;
-        int START_WITH_0 = 1 << 3;
-        int AFTER_EXPONENT = 1 << 1;
-        int AFTER_DECIMAL = 1 << 2;
-        int AFTER_EXPONENT_SIGNS = 1 << 4;
-        int AFTER_EXPONENT_NUMBERS = 1 << 5;
-        int tags = 0;
+        BitMask tags = new BitMask();
+        int AFTER_NEGATIVE = tags.create();
+        int START_WITH_0 = tags.create();
+        int AFTER_EXPONENT = tags.create();
+        int AFTER_DECIMAL = tags.create();
+        int AFTER_EXPONENT_SIGNS = tags.create();
+        int AFTER_EXPONENT_NUMBERS = tags.create();
         Status status = Status.START;
         int i = 0;
         for(; i < number.length(); i++){
@@ -24,11 +24,11 @@ public final class Jsons{
                 case START -> {
                     switch(c){
                         case '-' -> {
-                            tags |= AFTER_NEGATIVE;
+                            tags.enable(AFTER_NEGATIVE);
                             status = Status.INTEGERS;
                         }
                         case '0' -> {
-                            tags |= START_WITH_0;
+                            tags.enable(START_WITH_0);
                             status = Status.INTEGERS;
                         }
                         case '1', '2', '3', '4', '5', '6', '7', '8', '9' -> status = Status.INTEGERS;
@@ -38,26 +38,26 @@ public final class Jsons{
                 case INTEGERS -> {
                     switch(c){
                         case '0' -> {
-                            if((tags & START_WITH_0) != 0)return true;
-                            if((tags & AFTER_NEGATIVE) != 0){
-                                tags |= START_WITH_0;
-                                tags &= ~AFTER_NEGATIVE;
+                            if(tags.isSet(START_WITH_0))return true;
+                            if(tags.isSet(AFTER_NEGATIVE)){
+                                tags.enable(START_WITH_0);
+                                tags.disable(AFTER_NEGATIVE);
                             }
                         }
                         case '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                            if((tags & AFTER_NEGATIVE) != 0)tags &= ~AFTER_NEGATIVE;
-                            if((tags & START_WITH_0) != 0)return true;
+                            if(tags.isSet(AFTER_NEGATIVE))tags.disable(AFTER_NEGATIVE);
+                            if(tags.isSet(START_WITH_0))return true;
                         }
                         case '.' -> {
-                            if((tags & AFTER_NEGATIVE) != 0)return true;
+                            if(tags.isSet(AFTER_NEGATIVE))return true;
                             else{
-                                tags |= AFTER_DECIMAL;
+                                tags.enable(AFTER_DECIMAL);
                                 status = Status.DECIMAL;
                             }
                         }
                         case 'e', 'E' -> {
-                            if((tags & AFTER_NEGATIVE) != 0)return true;
-                            tags |= AFTER_EXPONENT;
+                            if(tags.isSet(AFTER_NEGATIVE))return true;
+                            tags.enable(AFTER_EXPONENT);
                             status = Status.EXPONENT;
                         }
                         default -> {return true;}
@@ -65,12 +65,12 @@ public final class Jsons{
                 }
                 case DECIMAL -> {
                     switch(c){
-                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> tags &= ~AFTER_DECIMAL;
+                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> tags.disable(AFTER_DECIMAL);
                         case 'e', 'E' -> {
-                            if((tags & AFTER_DECIMAL) != 0)return true;
+                            if(tags.isSet(AFTER_DECIMAL))return true;
                             else{
-                                tags |= AFTER_EXPONENT;
-                                tags &= ~AFTER_DECIMAL;
+                                tags.enable(AFTER_EXPONENT);
+                                tags.disable(AFTER_DECIMAL);
                                 status = Status.EXPONENT;
                             }
                         }
@@ -80,15 +80,15 @@ public final class Jsons{
                 case EXPONENT -> {
                     switch(c){
                         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                            tags &= ~AFTER_EXPONENT;
-                            tags &= ~AFTER_EXPONENT_SIGNS;
-                            tags |= AFTER_EXPONENT_NUMBERS;
+                            tags.disable(AFTER_EXPONENT);
+                            tags.disable(AFTER_EXPONENT_SIGNS);
+                            tags.enable(AFTER_EXPONENT_NUMBERS);
                         }
                         case '-', '+' -> {
-                            if((tags & AFTER_EXPONENT_NUMBERS) != 0 || (tags & AFTER_EXPONENT_SIGNS) != 0)return true;
+                            if(tags.isSet(AFTER_EXPONENT_NUMBERS)|| tags.isSet(AFTER_EXPONENT_SIGNS))return true;
                             else{
-                                tags &= ~AFTER_EXPONENT;
-                                tags |= AFTER_EXPONENT_SIGNS;
+                                tags.disable(AFTER_EXPONENT);
+                                tags.enable(AFTER_EXPONENT_SIGNS);
                             }
                         }
                         default -> {return true;}
@@ -96,9 +96,9 @@ public final class Jsons{
                 }
             }
         }
-        return  (tags & AFTER_NEGATIVE) != 0 ||
-                (tags & AFTER_DECIMAL) != 0 ||
-                (tags & AFTER_EXPONENT) != 0 ||
-                (tags & AFTER_EXPONENT_SIGNS) != 0;
+        return  tags.isSet(AFTER_NEGATIVE) ||
+                tags.isSet(AFTER_DECIMAL) ||
+                tags.isSet(AFTER_EXPONENT)||
+                tags.isSet(AFTER_EXPONENT_SIGNS);
     }
 }
