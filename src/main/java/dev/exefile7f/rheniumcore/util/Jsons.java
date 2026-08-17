@@ -1,209 +1,104 @@
 package dev.exefile7f.rheniumcore.util;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-
-public class Jsons{
-    public static class JsonValue{
-        private String name;
-        private Object value;
-        private Object parent;
-        public JsonValue get(String name){
-            if(isObject()) return ((Map<String, JsonValue>) value).get(name);
-            else return null;
-        }
-        public JsonValue setValue(Object value){
-            this.value = value;
-            return this;
-        }
-        public JsonValue setName(String name){
-            this.name = name;
-            return this;
-        }
-        public JsonValue setParent(Object parent){
-            this.parent = parent;
-            return this;
-        }
-        public Object getValue(){
-            return value;
-        }
-        public String getName(){
-            return name;
-        }
-        public boolean isRoot(){
-            return parent == null;
-        }
-        public boolean isObject(){
-            return value instanceof Map;
-        }
-
-        public boolean isArray(){
-            return value instanceof List;
-        }
-
-        public boolean isString(){
-            return value instanceof String;
-        }
-
-        public boolean isNumber(){
-            return value instanceof Number;
-        }
-
-        public boolean isBoolean(){
-            return value instanceof Boolean;
-        }
-
-        public boolean isNull(){
-            return value == null;
-        }
-    }
-    private Path file;
-    private String indentation = "    ";
-    private JsonValue box;
-
-    public Jsons(){}
-    public Jsons(Path file){
-        setFile(file);
-    }
-    /**
-     *
-     */
-    public void read() throws IOException{
-        if(!isWritable()) throw new IOException("Not a writable file");
+public final class Jsons{
+    private Jsons(){}
+    public static boolean isIllegalJsonNumber(String number){
         enum Status{
             START,
-            NONE,
-            NAME,
-            AFTER_NAME,
-            AFTER_STATEMENT,
-            VALUE_UNKNOW,
-            VALUE_STRING,
-            VALUE_NUMBER,
-            VALUE_MAP,
-            VALUE_ARRAY,
-            VALUE_BOOLEAN_TRUE,
-            VALUE_BOOLEAN_FALSE,
-            VALUE_NULL;
-            int index = 1;
-            void reset(){
-                index = 1;
-            }
+            INTEGERS,
+            DECIMAL,
+            EXPONENT,
         }
-        String file = Files.readString(this.file);
+        int AFTER_NEGATIVE = 1 << 0;
+        int START_WITH_0 = 1 << 3;
+        int AFTER_EXPONENT = 1 << 1;
+        int AFTER_DECIMAL = 1 << 2;
+        int AFTER_EXPONENT_SIGNS = 1 << 4;
+        int AFTER_EXPONENT_NUMBERS = 1 << 5;
+        int tags = 0;
         Status status = Status.START;
-        Deque<JsonValue> deque = new ArrayDeque<>();
-        JsonValue json = new JsonValue().setParent(null);
-        deque.push(json);
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < file.length(); i++){
-            char c = file.charAt(i);
+        int i = 0;
+        for(; i < number.length(); i++){
+            char c = number.charAt(i);
             switch(status){
-                case START, NONE -> {
+                case START -> {
                     switch(c){
-                        case ' ', '\n' -> {}
-                        case '{' -> status = Status.VALUE_MAP;
-                        case '"' -> status = Status.NAME;
-                        default -> throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                        case '-' -> {
+                            tags |= AFTER_NEGATIVE;
+                            status = Status.INTEGERS;
+                        }
+                        case '0' -> {
+                            tags |= START_WITH_0;
+                            status = Status.INTEGERS;
+                        }
+                        case '1', '2', '3', '4', '5', '6', '7', '8', '9' -> status = Status.INTEGERS;
+                        default -> {return true;}
                     }
                 }
-                case NAME -> {
+                case INTEGERS -> {
                     switch(c){
-                        case '"' -> {
-                            deque.element().setName(sb.toString());
-                            sb.setLength(0);
-                            status = Status.AFTER_NAME;
+                        case '0' -> {
+                            if((tags & START_WITH_0) != 0)return true;
+                            if((tags & AFTER_NEGATIVE) != 0){
+                                tags |= START_WITH_0;
+                                tags &= ~AFTER_NEGATIVE;
+                            }
                         }
-                        case '\n', '\r' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
-                        default -> sb.append(c);
+                        case '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                            if((tags & AFTER_NEGATIVE) != 0)tags &= ~AFTER_NEGATIVE;
+                            if((tags & START_WITH_0) != 0)return true;
+                        }
+                        case '.' -> {
+                            if((tags & AFTER_NEGATIVE) != 0)return true;
+                            else{
+                                tags |= AFTER_DECIMAL;
+                                status = Status.DECIMAL;
+                            }
+                        }
+                        case 'e', 'E' -> {
+                            if((tags & AFTER_NEGATIVE) != 0)return true;
+                            tags |= AFTER_EXPONENT;
+                            status = Status.EXPONENT;
+                        }
+                        default -> {return true;}
                     }
                 }
-                case AFTER_NAME -> {
+                case DECIMAL -> {
                     switch(c){
-                        case ' ', '\n' -> {}
-                        case ':' -> status = Status.VALUE_UNKNOW;
-                        default -> throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> tags &= ~AFTER_DECIMAL;
+                        case 'e', 'E' -> {
+                            if((tags & AFTER_DECIMAL) != 0)return true;
+                            else{
+                                tags |= AFTER_EXPONENT;
+                                tags &= ~AFTER_DECIMAL;
+                                status = Status.EXPONENT;
+                            }
+                        }
+                        default -> {return true;}
                     }
                 }
-                case VALUE_UNKNOW -> {
+                case EXPONENT -> {
                     switch(c){
-                        case ' ', '\n' -> {}
-                        case '"' -> status = Status.VALUE_STRING;
-                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' -> {
-                            sb.append(c);
-                            status = Status.VALUE_NUMBER;
+                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                            tags &= ~AFTER_EXPONENT;
+                            tags &= ~AFTER_EXPONENT_SIGNS;
+                            tags |= AFTER_EXPONENT_NUMBERS;
                         }
-                        case '{' -> {
-                            deque.element().setValue(new HashMap<String, JsonValue>());
-                            status = Status.VALUE_MAP;
+                        case '-', '+' -> {
+                            if((tags & AFTER_EXPONENT_NUMBERS) != 0 || (tags & AFTER_EXPONENT_SIGNS) != 0)return true;
+                            else{
+                                tags &= ~AFTER_EXPONENT;
+                                tags |= AFTER_EXPONENT_SIGNS;
+                            }
                         }
-                        case '[' -> {
-                            deque.element().setValue(new ArrayList<JsonValue>());
-                            status = Status.VALUE_ARRAY;
-                        }
-                        case 't' -> status = Status.VALUE_BOOLEAN_TRUE;
-                        case 'f' -> status = Status.VALUE_BOOLEAN_FALSE;
-                        case 'n' -> status = Status.VALUE_NULL;
-                        default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
-                    }
-                }
-                case VALUE_STRING -> {
-                    switch(c){
-                        case '"' -> {
-                            deque.element().setValue(sb.toString());
-                            sb.setLength(0);
-                            status = Status.AFTER_STATEMENT;
-                        }
-                        case '\n' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
-                        default -> sb.append(c);
-                    }
-                }
-                case VALUE_NUMBER -> {
-                    switch(c){
-                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', 'e', 'E', '.' -> {
-
-                        }
+                        default -> {return true;}
                     }
                 }
             }
         }
-    }
-    private static final class Exceptions{
-        private Exceptions(){}
-        public static String unexpectedChar(char c, String file, int i){
-            return "Unexpected character '" + c + "' at " +
-                    Strings.toLineCharFormat(file, i) +
-                    " (index " + i + ")";
-        }
-        public static String unexpectedLineBreak(String file, int i){
-            return "Unexpected line break at " +
-                    Strings.toLineCharFormat(file, i) +
-                    " (index " + i + ")";
-        }
-    }
-    public boolean isWritable(){
-        return Files.isWritable(file);
-    }
-    public Jsons setFile(Path file){
-        if(Files.isDirectory(file)) throw new IllegalArgumentException("Not a file: Path leads to a directory");
-        else this.file = file;
-        return this;
-    }
-    public Jsons setIndentation(String str){
-        this.indentation = str;
-        return this;
-    }
-    public Jsons setIndentation(int length){
-        this.indentation = " ".repeat(length);
-        return this;
-    }
-    public Jsons autoCreate(){
-        try{
-            Files.createFile(file);
-        }catch(IOException e){
-            throw new RuntimeException(e);
-        }
-        return this;
+        return  (tags & AFTER_NEGATIVE) != 0 ||
+                (tags & AFTER_DECIMAL) != 0 ||
+                (tags & AFTER_EXPONENT) != 0 ||
+                (tags & AFTER_EXPONENT_SIGNS) != 0;
     }
 }
