@@ -1,15 +1,18 @@
 package dev.exefile7f.rheniumcore.util;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+
+import static dev.exefile7f.rheniumcore.util.Jsons.isIllegalJsonNumber;
 
 public class Json{
     public static class JsonValue{
         private String name;
         private Object value;
-        private Object parent;
+        private JsonValue parent;
         public JsonValue get(String name){
             if(isObject()) return ((Map<String, JsonValue>) value).get(name);
             else return null;
@@ -22,7 +25,7 @@ public class Json{
             this.name = name;
             return this;
         }
-        public JsonValue setParent(Object parent){
+        public JsonValue setParent(JsonValue parent){
             this.parent = parent;
             return this;
         }
@@ -31,6 +34,9 @@ public class Json{
         }
         public String getName(){
             return name;
+        }
+        public JsonValue getParent(){
+            return parent;
         }
         public boolean isRoot(){
             return parent == null;
@@ -48,7 +54,7 @@ public class Json{
         }
 
         public boolean isNumber(){
-            return value instanceof Number;
+            return value instanceof BigDecimal;
         }
 
         public boolean isBoolean(){
@@ -93,6 +99,8 @@ public class Json{
                 index = 1;
             }
         }
+        int AFTER_BACKSLASH = 1 << 0;
+        int tags = 0;
         String file = Files.readString(this.file);
         Status status = Status.START;
         Deque<JsonValue> deque = new ArrayDeque<>();
@@ -102,7 +110,7 @@ public class Json{
         for(int i = 0; i < file.length(); i++){
             char c = file.charAt(i);
             switch(status){
-                case START, NONE -> {
+                case START -> {
                     switch(c){
                         case ' ', '\n' -> {}
                         case '{' -> status = Status.VALUE_MAP;
@@ -163,7 +171,23 @@ public class Json{
                 }
                 case VALUE_NUMBER -> {
                     switch(c){
-                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', 'e', 'E', '.' -> {
+                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', 'e', 'E', '.' -> sb.append(c);
+                        case ' ', ',' -> {
+                            if(isIllegalJsonNumber(sb.toString()))throw new IllegalArgumentException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
+                            else{
+                                deque.element().setValue(new BigDecimal(sb.toString()));
+                                sb.setLength(0);
+                                status = Status.AFTER_STATEMENT;
+                            }
+                        }
+                        case '\n' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
+                        default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                    }
+                }
+                case VALUE_MAP -> {
+                    switch(c){
+                        case ' ', '\n' -> {}
+                        case '}' -> {
 
                         }
                     }
@@ -182,6 +206,13 @@ public class Json{
             return "Unexpected line break at " +
                     Strings.toLineCharFormat(file, i) +
                     " (index " + i + ")";
+        }
+        public static String invalidJsonNumber(String file, int i, String number){
+            i -= number.length();
+            return "Invalid JSON number at " +
+                    Strings.toLineCharFormat(file, i) +
+                    " (index " + i + ") -> " +
+                    number;
         }
     }
     public boolean isWritable(){
