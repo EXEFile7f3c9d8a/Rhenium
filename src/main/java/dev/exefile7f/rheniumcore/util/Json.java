@@ -100,13 +100,19 @@ public class Json{
             }
         }
         BitMask tags = new BitMask();
-        int AFTER_BACKSLASH = tags.create();
+        final int START = tags.create();
+        final int CURRENT_IN_MAP = tags.create();
+        final int CURRENT_IN_LIST = tags.create();
+        final int CURRENT_NAMELESS = tags.create();
+        final int AFTER_COMMA = tags.create();
+        final int AFTER_BACKSLASH = tags.create();
         String file = Files.readString(this.file);
         Status status = Status.START;
         Deque<JsonValue> deque = new ArrayDeque<>();
-        JsonValue json = new JsonValue().setParent(null);
-        deque.push(json);
         StringBuilder sb = new StringBuilder();
+        JsonValue root = new JsonValue().setParent(null);
+        deque.push(root);
+        tags.enable(START).enable(CURRENT_NAMELESS);
         for(int i = 0; i < file.length(); i++){
             char c = file.charAt(i);
             switch(status){
@@ -116,6 +122,29 @@ public class Json{
                         case '{' -> status = Status.VALUE_MAP;
                         case '"' -> status = Status.NAME;
                         default -> throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                    }
+                }
+                case NONE -> {
+
+                }
+                case AFTER_STATEMENT -> {
+                    switch(c){
+                        case ' ', '\n' -> {}
+                        case ',' -> tags.enable(AFTER_COMMA);
+                        case ']' -> {
+                            if(tags.isSet(AFTER_COMMA) || !deque.element().isArray())throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
+                            else{
+                                if(deque.pop().getParent().isArray()){
+                                    status = Status.VALUE_ARRAY;
+                                }else{
+                                    status = Status.VALUE_MAP;
+                                    tags.disable(CURRENT_NAMELESS);
+                                }
+                            }
+                        }
+                        case '}' -> {
+
+                        }
                     }
                 }
                 case NAME -> {
@@ -213,6 +242,11 @@ public class Json{
                     Strings.toLineCharFormat(file, i) +
                     " (index " + i + ") -> " +
                     number;
+        }
+        public static String unexpectedClosing(char c, String file, int i){
+            return "Unexpected closing '" + c + "' at " +
+                    Strings.toLineCharFormat(file, i) +
+                    " (index " + i + ")";
         }
     }
     public boolean isWritable(){
