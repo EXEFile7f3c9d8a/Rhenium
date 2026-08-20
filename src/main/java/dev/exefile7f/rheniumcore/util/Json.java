@@ -14,7 +14,7 @@ public class Json{
         private Object value;
         private JsonValue parent;
         public JsonValue get(String name){
-            if(isObject()) return ((Map<String, JsonValue>) value).get(name);
+            if(isObject())return ((Map<String, JsonValue>) value).get(name);
             else return null;
         }
         public JsonValue setValue(Object value){
@@ -86,9 +86,7 @@ public class Json{
             AFTER_STATEMENT,
             VALUE_UNKNOW,
             VALUE_STRING,
-            VALUE_NUMBER{
-
-            },
+            VALUE_NUMBER,
             VALUE_MAP,
             VALUE_ARRAY,
             VALUE_BOOLEAN_TRUE,
@@ -150,12 +148,25 @@ public class Json{
                 case NAME -> {
                     switch(c){
                         case '"' -> {
-                            deque.element().setName(sb.toString());
-                            sb.setLength(0);
-                            status = Status.AFTER_NAME;
+                            if(tags.isSet(AFTER_BACKSLASH)){
+                                tags.disable(AFTER_BACKSLASH);
+                                sb.append(c);
+                            }else{
+                                deque.element().setName(sb.toString());
+                                sb.setLength(0);
+                                status = Status.AFTER_NAME;
+                            }
+                        }
+                        case '\\' -> {
+                            if(tags.isSet(AFTER_BACKSLASH))tags.disable(AFTER_BACKSLASH);
+                            else tags.enable(AFTER_BACKSLASH);
+                            sb.append(c);
                         }
                         case '\n', '\r' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
-                        default -> sb.append(c);
+                        default -> {
+                            tags.disable(AFTER_BACKSLASH);
+                            sb.append(c);
+                        }
                     }
                 }
                 case AFTER_NAME -> {
@@ -168,7 +179,10 @@ public class Json{
                 case VALUE_UNKNOW -> {
                     switch(c){
                         case ' ', '\n' -> {}
-                        case '"' -> status = Status.VALUE_STRING;
+                        case '"' -> {
+                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue().setParent(deque.element()).setName(null));
+                            status = Status.VALUE_STRING;
+                        }
                         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' -> {
                             sb.append(c);
                             status = Status.VALUE_NUMBER;
@@ -191,8 +205,15 @@ public class Json{
                     switch(c){
                         case '"' -> {
                             deque.element().setValue(sb.toString());
+                            deque.pop();
                             sb.setLength(0);
                             status = Status.AFTER_STATEMENT;
+                            i--;
+                        }
+                        case '\\' -> {
+                            if(tags.isSet(AFTER_BACKSLASH))tags.disable(AFTER_BACKSLASH);
+                            else tags.enable(AFTER_BACKSLASH);
+                            sb.append(c);
                         }
                         case '\n' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
                         default -> sb.append(c);
@@ -205,8 +226,10 @@ public class Json{
                             if(isIllegalJsonNumber(sb.toString()))throw new IllegalArgumentException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
                             else{
                                 deque.element().setValue(new BigDecimal(sb.toString()));
+                                deque.pop();
                                 sb.setLength(0);
                                 status = Status.AFTER_STATEMENT;
+                                i--;
                             }
                         }
                         case '\n' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));

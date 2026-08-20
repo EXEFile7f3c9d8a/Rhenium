@@ -12,6 +12,7 @@ class _DEBUG{
     public static void main(String[] args){
         System.out.println(
                 BooleansToString(
+                        //legals
                         isIllegalJsonNumber("0"),
                         isIllegalJsonNumber("-0"),
                         isIllegalJsonNumber("1"),
@@ -29,7 +30,7 @@ class _DEBUG{
                         isIllegalJsonNumber("1.2e10"),
                         isIllegalJsonNumber("1.2e+10"),
                         isIllegalJsonNumber("1.2e-10"),
-
+                        //illegals
                         isIllegalJsonNumber("01"),
                         isIllegalJsonNumber("-01"),
                         isIllegalJsonNumber("00"),
