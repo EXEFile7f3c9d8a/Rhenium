@@ -1,70 +1,20 @@
-package dev.exefile7f.rheniumcore.util;
+package dev.exefile7f.rheniumcore.util.json;
+
+import dev.exefile7f.rheniumcore.util.BitMask;
+import dev.exefile7f.rheniumcore.util.Strings;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
 
-import static dev.exefile7f.rheniumcore.util.Jsons.isIllegalJsonNumber;
+import static dev.exefile7f.rheniumcore.util.json.Jsons.isIllegalJsonNumber;
 
 public class Json{
-    public static class JsonValue{
-        private String name;
-        private Object value;
-        private JsonValue parent;
-        public JsonValue get(String name){
-            if(isObject())return ((Map<String, JsonValue>) value).get(name);
-            else return null;
-        }
-        public JsonValue setValue(Object value){
-            this.value = value;
-            return this;
-        }
-        public JsonValue setName(String name){
-            this.name = name;
-            return this;
-        }
-        public JsonValue setParent(JsonValue parent){
-            this.parent = parent;
-            return this;
-        }
-        public Object getValue(){
-            return value;
-        }
-        public String getName(){
-            return name;
-        }
-        public JsonValue getParent(){
-            return parent;
-        }
-        public boolean isRoot(){
-            return parent == null;
-        }
-        public boolean isObject(){
-            return value instanceof Map;
-        }
-
-        public boolean isArray(){
-            return value instanceof List;
-        }
-
-        public boolean isString(){
-            return value instanceof String;
-        }
-
-        public boolean isNumber(){
-            return value instanceof BigDecimal;
-        }
-
-        public boolean isBoolean(){
-            return value instanceof Boolean;
-        }
-
-        public boolean isNull(){
-            return value == null;
-        }
-    }
     private Path file;
     private String indentation = "    ";
     private JsonValue box;
@@ -79,7 +29,6 @@ public class Json{
     public void read() throws IOException{
         if(!isWritable()) throw new IOException("Not a writable file");
         enum Status{
-            START,
             NONE,
             NAME,
             AFTER_NAME,
@@ -105,7 +54,7 @@ public class Json{
         final int AFTER_COMMA = tags.create();
         final int AFTER_BACKSLASH = tags.create();
         String file = Files.readString(this.file);
-        Status status = Status.START;
+        Status status = Status.VALUE_UNKNOW;
         Deque<JsonValue> deque = new ArrayDeque<>();
         StringBuilder sb = new StringBuilder();
         JsonValue root = new JsonValue().setParent(null);
@@ -114,14 +63,6 @@ public class Json{
         for(int i = 0; i < file.length(); i++){
             char c = file.charAt(i);
             switch(status){
-                case START -> {
-                    switch(c){
-                        case ' ', '\n' -> {}
-                        case '{' -> status = Status.VALUE_MAP;
-                        case '"' -> status = Status.NAME;
-                        default -> throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
-                    }
-                }
                 case NONE -> {
 
                 }
@@ -152,7 +93,10 @@ public class Json{
                                 tags.disable(AFTER_BACKSLASH);
                                 sb.append(c);
                             }else{
-                                deque.element().setName(sb.toString());
+                                if(deque.element().isRoot())
+                                deque.push(new JsonValue()
+                                        .setName(sb.toString())
+                                        .setParent(deque.element()));
                                 sb.setLength(0);
                                 status = Status.AFTER_NAME;
                             }
@@ -180,24 +124,55 @@ public class Json{
                     switch(c){
                         case ' ', '\n' -> {}
                         case '"' -> {
-                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue().setParent(deque.element()).setName(null));
+                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                                    .setValue("")
+                                    .setParent(deque.element())
+                                    .setName(null));
+                            else deque.element().setValue("");
                             status = Status.VALUE_STRING;
                         }
                         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' -> {
+                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                                    .setValue(0)
+                                    .setParent(deque.element())
+                                    .setName(null));
                             sb.append(c);
                             status = Status.VALUE_NUMBER;
                         }
                         case '{' -> {
-                            deque.element().setValue(new HashMap<String, JsonValue>());
+                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                                    .setValue(new HashMap<String, JsonValue>())
+                                    .setParent(deque.element())
+                                    .setName(null));
+                            else deque.element().setValue(new HashMap<String, JsonValue>());
                             status = Status.VALUE_MAP;
                         }
                         case '[' -> {
-                            deque.element().setValue(new ArrayList<JsonValue>());
+                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                                    .setValue(new ArrayList<JsonValue>())
+                                    .setParent(deque.element())
+                                    .setName(null));
+                            else deque.element().setValue(new ArrayList<JsonValue>());
                             status = Status.VALUE_ARRAY;
                         }
-                        case 't' -> status = Status.VALUE_BOOLEAN_TRUE;
-                        case 'f' -> status = Status.VALUE_BOOLEAN_FALSE;
-                        case 'n' -> status = Status.VALUE_NULL;
+                        case 't' -> {
+                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                                    .setParent(deque.element())
+                                    .setName(null));
+                            status = Status.VALUE_BOOLEAN_TRUE;
+                        }
+                        case 'f' -> {
+                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                                    .setParent(deque.element())
+                                    .setName(null));
+                            status = Status.VALUE_BOOLEAN_FALSE;
+                        }
+                        case 'n' -> {
+                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                                    .setParent(deque.element())
+                                    .setName(null));
+                            status = Status.VALUE_NULL;
+                        }
                         default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
@@ -296,5 +271,4 @@ public class Json{
         }
         return this;
     }
-
 }

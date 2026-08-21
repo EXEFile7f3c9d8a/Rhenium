@@ -1,4 +1,6 @@
-package dev.exefile7f.rheniumcore.util;
+package dev.exefile7f.rheniumcore.util.json;
+
+import dev.exefile7f.rheniumcore.util.BitMask;
 
 public final class Jsons{
     private Jsons(){}

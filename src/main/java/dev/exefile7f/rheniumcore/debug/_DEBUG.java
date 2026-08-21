@@ -1,6 +1,6 @@
 package dev.exefile7f.rheniumcore.debug;
 
-import static dev.exefile7f.rheniumcore.util.Jsons.isIllegalJsonNumber;
+import static dev.exefile7f.rheniumcore.util.json.Jsons.isIllegalJsonNumber;
 import static dev.exefile7f.rheniumcore.util.Strings.BooleansToString;
 
 class _DEBUG{
