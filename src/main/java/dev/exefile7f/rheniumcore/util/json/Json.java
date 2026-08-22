@@ -48,8 +48,6 @@ public class Json{
         }
         BitMask tags = new BitMask();
         final int START = tags.create();
-        final int CURRENT_IN_MAP = tags.create();
-        final int CURRENT_IN_LIST = tags.create();
         final int CURRENT_NAMELESS = tags.create();
         final int AFTER_COMMA = tags.create();
         final int AFTER_BACKSLASH = tags.create();
@@ -71,7 +69,8 @@ public class Json{
                         case ' ', '\n' -> {}
                         case ',' -> tags.enable(AFTER_COMMA);
                         case ']' -> {
-                            if(tags.isSet(AFTER_COMMA) || !deque.element().isArray())throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
+                            if(tags.isSet(AFTER_COMMA) || !deque.element().isArray())
+                                throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
                             else{
                                 if(deque.pop().getParent().isArray()){
                                     status = Status.VALUE_ARRAY;
@@ -102,8 +101,7 @@ public class Json{
                             }
                         }
                         case '\\' -> {
-                            if(tags.isSet(AFTER_BACKSLASH))tags.disable(AFTER_BACKSLASH);
-                            else tags.enable(AFTER_BACKSLASH);
+                            tags.flip(AFTER_BACKSLASH);
                             sb.append(c);
                         }
                         case '\n', '\r' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
@@ -124,53 +122,75 @@ public class Json{
                     switch(c){
                         case ' ', '\n' -> {}
                         case '"' -> {
-                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
-                                    .setValue("")
-                                    .setParent(deque.element())
-                                    .setName(null));
-                            else deque.element().setValue("");
+                            ParserFunction.VALUE_UNKNOW_ifNamelessPush(
+                                    tags,
+                                    START,
+                                    CURRENT_NAMELESS,
+                                    deque,
+                                    JsonValue.Type.STRING,
+                                    null
+                            );
                             status = Status.VALUE_STRING;
                         }
                         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' -> {
-                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
-                                    .setValue(0)
-                                    .setParent(deque.element())
-                                    .setName(null));
+                            ParserFunction.VALUE_UNKNOW_ifNamelessPush(
+                                    tags,
+                                    START,
+                                    CURRENT_NAMELESS,
+                                    deque,
+                                    JsonValue.Type.NUMBER,
+                                    null
+                            );
                             sb.append(c);
                             status = Status.VALUE_NUMBER;
                         }
                         case '{' -> {
-                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
-                                    .setValue(new HashMap<String, JsonValue>())
-                                    .setParent(deque.element())
-                                    .setName(null));
-                            else deque.element().setValue(new HashMap<String, JsonValue>());
+                            ParserFunction.VALUE_UNKNOW_ifNamelessPush(
+                                    tags,
+                                    START,
+                                    CURRENT_NAMELESS,
+                                    deque,
+                                    new HashMap<String, JsonValue>(),
+                                    JsonValue.Type.OBJECT,
+                                    null
+                            );
                             status = Status.VALUE_MAP;
                         }
                         case '[' -> {
-                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
-                                    .setValue(new ArrayList<JsonValue>())
-                                    .setParent(deque.element())
-                                    .setName(null));
-                            else deque.element().setValue(new ArrayList<JsonValue>());
+                            ParserFunction.VALUE_UNKNOW_ifNamelessPush(
+                                    tags,
+                                    START,
+                                    CURRENT_NAMELESS,
+                                    deque,
+                                    new ArrayList<JsonValue>(),
+                                    JsonValue.Type.ARRAY,
+                                    null
+                            );
+
                             status = Status.VALUE_ARRAY;
                         }
-                        case 't' -> {
-                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
-                                    .setParent(deque.element())
-                                    .setName(null));
-                            status = Status.VALUE_BOOLEAN_TRUE;
-                        }
-                        case 'f' -> {
-                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
-                                    .setParent(deque.element())
-                                    .setName(null));
-                            status = Status.VALUE_BOOLEAN_FALSE;
+                        case 't', 'f' -> {
+                            ParserFunction.VALUE_UNKNOW_ifNamelessPush(
+                                    tags,
+                                    START,
+                                    CURRENT_NAMELESS,
+                                    deque,
+                                    JsonValue.Type.BOOLEAN,
+                                    null
+                            );
+                            if(c == 't')status = Status.VALUE_BOOLEAN_TRUE;
+                            else status = Status.VALUE_BOOLEAN_FALSE;
+
                         }
                         case 'n' -> {
-                            if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
-                                    .setParent(deque.element())
-                                    .setName(null));
+                            ParserFunction.VALUE_UNKNOW_ifNamelessPush(
+                                    tags,
+                                    START,
+                                    CURRENT_NAMELESS,
+                                    deque,
+                                    JsonValue.Type.NULL,
+                                    null
+                            );
                             status = Status.VALUE_NULL;
                         }
                         default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
@@ -183,11 +203,9 @@ public class Json{
                             deque.pop();
                             sb.setLength(0);
                             status = Status.AFTER_STATEMENT;
-                            i--;
                         }
                         case '\\' -> {
-                            if(tags.isSet(AFTER_BACKSLASH))tags.disable(AFTER_BACKSLASH);
-                            else tags.enable(AFTER_BACKSLASH);
+                            tags.flip(AFTER_BACKSLASH);
                             sb.append(c);
                         }
                         case '\n' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
@@ -219,6 +237,54 @@ public class Json{
                         }
                     }
                 }
+            }
+        }
+    }
+    private static final class ParserFunction{
+        private ParserFunction(){}
+        public static void VALUE_UNKNOW_ifNamelessPush(
+                BitMask tags,
+                int START,
+                int CURRENT_NAMELESS,
+                Deque<JsonValue> deque,
+                JsonValue.Type type,
+                String name
+        ){
+            VALUE_UNKNOW_ifNamelessPush(tags, START, CURRENT_NAMELESS, deque, null, type, name, false);
+        }
+        public static void VALUE_UNKNOW_ifNamelessPush(
+                BitMask tags,
+                int START,
+                int CURRENT_NAMELESS,
+                Deque<JsonValue> deque,
+                Object value,
+                JsonValue.Type type,
+                String name
+        ){
+            VALUE_UNKNOW_ifNamelessPush(tags, START, CURRENT_NAMELESS, deque, value, type, name, true);
+        }
+
+        private static void VALUE_UNKNOW_ifNamelessPush(
+                BitMask tags,
+                int START,
+                int CURRENT_NAMELESS,
+                Deque<JsonValue> deque,
+                Object value,
+                JsonValue.Type type,
+                String name,
+                boolean setValue){
+            if(setValue){
+                if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                        .setValue(value)
+                        .setType(type)
+                        .setParent(tags.isSet(START) ? null : deque.element())
+                        .setName(name));
+                else deque.element().setValue(value);
+            }else{
+                if(tags.isSet(CURRENT_NAMELESS))deque.push(new JsonValue()
+                        .setType(type)
+                        .setParent(tags.isSet(START) ? null : deque.element())
+                        .setName(name));
             }
         }
     }

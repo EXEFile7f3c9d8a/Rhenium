@@ -19,4 +19,13 @@ public class BitMask{
         bits &= ~num;
         return this;
     }
+    public BitMask flipAll(){
+        bits = ~bits;
+        return this;
+    }
+    public BitMask flip(int num){
+        if(isSet(num))disable(num);
+        else enable(num);
+        return this;
+    }
 }
