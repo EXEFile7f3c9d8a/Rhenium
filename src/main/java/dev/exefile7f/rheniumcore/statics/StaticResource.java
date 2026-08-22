@@ -1,7 +1,7 @@
 package dev.exefile7f.rheniumcore.statics;
 
 import dev.exefile7f.rheniumcore.RheniumCore;
-import dev.exefile7f.rheniumcore.threadpool.Tasks;
+import dev.exefile7f.rheniumcore.util.threadpool.Tasks;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;

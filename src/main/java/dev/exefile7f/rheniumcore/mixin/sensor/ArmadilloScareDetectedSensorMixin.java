@@ -1,6 +1,6 @@
 package dev.exefile7f.rheniumcore.mixin.sensor;
 
-import dev.exefile7f.rheniumcore.threadpool.Tasks;
+import dev.exefile7f.rheniumcore.util.threadpool.Tasks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.ArmadilloScareDetectedSensor;
