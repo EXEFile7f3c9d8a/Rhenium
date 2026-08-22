@@ -1,5 +1,8 @@
 package dev.exefile7f.rheniumcore.debug;
 
+import java.sql.Time;
+import java.time.LocalDateTime;
+
 import static dev.exefile7f.rheniumcore.util.json.Jsons.isIllegalJsonNumber;
 import static dev.exefile7f.rheniumcore.util.Strings.BooleansToString;
 
@@ -10,6 +13,7 @@ class _DEBUG{
      * YOU SHOULD NEVER CALL THIS FUNCTION IN YOUR CODE
      */
     public static void main(String[] args){
+        long start = System.nanoTime();
         System.out.println(
                 BooleansToString(
                         //legals
@@ -44,5 +48,7 @@ class _DEBUG{
                         isIllegalJsonNumber("1e+0.5")
                 )
         );
+        long end = System.nanoTime();
+        System.out.println((end - start) / 25 + " ns");
     }
 }

@@ -2,9 +2,11 @@
     "number": -1.2345e-123,
     "string": "value",
     "boolean": true,
+    "bool2": false,
+    "null": null,
     "map": {
         "number": 123,
-        "string": "123",
+        "string": "12\\\\\\\\\\\"\"\"\"\"\\\n\n\n\n\n\n3",
         "array": [
             {
                 "number": -1.2345e-123,
@@ -12,7 +14,7 @@
             },
             123,
             "123",
-            true
+            false
         ]
     }
 }
