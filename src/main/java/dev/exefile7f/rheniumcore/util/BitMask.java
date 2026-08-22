@@ -15,8 +15,20 @@ public class BitMask{
         bits |= num;
         return this;
     }
+    public BitMask enable(int... nums){
+        for(int i = 0; i < nums.length; i++){
+            enable(nums[i]);
+        }
+        return this;
+    }
     public BitMask disable(int num){
         bits &= ~num;
+        return this;
+    }
+    public BitMask disable(int... nums){
+        for(int i = 0; i < nums.length; i++){
+            disable(nums[i]);
+        }
         return this;
     }
     public BitMask flipAll(){
