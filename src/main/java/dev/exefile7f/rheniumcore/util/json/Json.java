@@ -35,11 +35,7 @@ public class Json{
         VALUE_ARRAY,
         VALUE_BOOLEAN_TRUE,
         VALUE_BOOLEAN_FALSE,
-        VALUE_NULL;
-        int index = 1;
-        void reset(){
-            index = 1;
-        }
+        VALUE_NULL
     }
     /**
      *
