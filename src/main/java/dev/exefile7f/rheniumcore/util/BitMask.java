@@ -11,6 +11,12 @@ public class BitMask{
     public boolean isSet(int num){
         return (bits & num) != 0;
     }
+    public boolean isSet(int... nums){
+        for(int i = 0; i < nums.length; i++){
+            if(isSet(nums[i]))return true;
+        }
+        return false;
+    }
     public BitMask enable(int num){
         bits |= num;
         return this;
