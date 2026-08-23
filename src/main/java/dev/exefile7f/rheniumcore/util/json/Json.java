@@ -64,8 +64,8 @@ public class Json{
                             tags.disable(AFTER_COMMA);
                             status = Status.NAME;
                         }
-                        case ']' -> ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, status, false);
-                        case '}' -> ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, status, true);
+                        case ']' -> status = ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, false);
+                        case '}' -> status = ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, true);
                         default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
@@ -80,8 +80,8 @@ public class Json{
                                 tags.enable(AFTER_COMMA);
                             }
                         }
-                        case ']' -> ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, status, false);
-                        case '}' -> ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, status, true);
+                        case ']' -> status = ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, false);
+                        case '}' -> status = ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, true);
                         default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
@@ -271,7 +271,7 @@ public class Json{
             else deque.element().setValue(value);
         }
 
-        public static void closing(
+        public static Status closing(
                 BitMask tags,
                 int AFTER_COMMA,
                 Deque<JsonValue> deque,
@@ -279,7 +279,6 @@ public class Json{
                 String file,
                 int i,
                 int CURRENT_NAMELESS,
-                Status status,
                 boolean isObject
         ){
             if(tags.isSet(AFTER_COMMA) || isObject ? !deque.element().isObject() : !deque.element().isArray())
@@ -287,10 +286,10 @@ public class Json{
             else {
                 if(deque.pop().getParent().isArray()){
                     tags.enable(CURRENT_NAMELESS);
-                    status = Status.VALUE_UNKNOW;
+                    return Status.VALUE_UNKNOW;
                 }else{
                     tags.disable(CURRENT_NAMELESS);
-                    status = Status.NONE;
+                    return Status.NONE;
                 }
             }
         }
