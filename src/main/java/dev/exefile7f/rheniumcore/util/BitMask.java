@@ -46,4 +46,8 @@ public class BitMask{
         else enable(num);
         return this;
     }
+    @Override
+    public String toString(){
+        return Integer.toBinaryString(bits);
+    }
 }

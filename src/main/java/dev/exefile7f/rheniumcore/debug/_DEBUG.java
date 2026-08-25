@@ -1,7 +1,8 @@
 package dev.exefile7f.rheniumcore.debug;
 
-import java.sql.Time;
-import java.time.LocalDateTime;
+import dev.exefile7f.rheniumcore.util.json.Json;
+
+import java.nio.file.Path;
 
 import static dev.exefile7f.rheniumcore.util.json.Jsons.isIllegalJsonNumber;
 import static dev.exefile7f.rheniumcore.util.Strings.BooleansToString;
@@ -12,7 +13,7 @@ class _DEBUG{
      * <p>
      * YOU SHOULD NEVER CALL THIS FUNCTION IN YOUR CODE
      */
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception{
         long start = System.nanoTime();
         System.out.println(
                 BooleansToString(
@@ -49,6 +50,14 @@ class _DEBUG{
                 )
         );
         long end = System.nanoTime();
+        System.out.println((end - start) / 25 + " ns");
+        start = System.nanoTime();
+        System.out.println(
+                new Json(
+                        Path.of("F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json")
+                ).read().toString()
+        );
+        end = System.nanoTime();
         System.out.println((end - start) / 25 + " ns");
     }
 }

@@ -9,8 +9,8 @@ public final class Strings{
         );
     }
     public static String toLineCharFormat(String str, int pos){
-        int lines = 0;
-        int character = 0;
+        int lines = 1;
+        int character = 1;
         int i = 0;
         for(; i < pos; i++){
             if(str.charAt(i) == '\n')lines++;
