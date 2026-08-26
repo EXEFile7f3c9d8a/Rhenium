@@ -9,19 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 public class JsonValue{
-    public enum Type{
-        OBJECT,
-        ARRAY,
-        STRING,
-        NUMBER,
-        BOOLEAN,
-        NULL,
-        UNSET_PLACEHOLDER
-    }
     private String name;
     private Object value;
     private JsonValue parent;
-    private Type type;
     public JsonValue get(int index){
         if(this.isArray())return ((List<JsonValue>)value).get(--index);
         else return null;
@@ -89,10 +79,6 @@ public class JsonValue{
         this.parent = parent;
         return this;
     }
-    public JsonValue setType(Type type){
-        this.type = type;
-        return this;
-    }
     public ArrayMap<String, JsonValue> getAsObject(){
         if(this.isObject())return (ArrayMap<String, JsonValue>)getValue();
         else return null;
@@ -131,29 +117,5 @@ public class JsonValue{
     }
     public boolean isNull(){
         return value == null;
-    }
-
-    public boolean isObjectType(){
-        return type == Type.OBJECT;
-    }
-
-    public boolean isArrayType(){
-        return type == Type.ARRAY;
-    }
-
-    public boolean isStringType(){
-        return type == Type.STRING;
-    }
-
-    public boolean isNumberType(){
-        return type == Type.NUMBER;
-    }
-
-    public boolean isBooleanType(){
-        return type == Type.BOOLEAN;
-    }
-
-    public boolean isNullType(){
-        return type == Type.NULL;
     }
 }

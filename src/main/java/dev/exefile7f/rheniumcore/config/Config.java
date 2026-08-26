@@ -1,6 +1,5 @@
 package dev.exefile7f.rheniumcore.config;
 
-import dev.exefile7f.rheniumcore.util.ArrayMap;
 import dev.exefile7f.rheniumcore.util.json.Json;
 import dev.exefile7f.rheniumcore.util.json.JsonValue;
 import org.slf4j.Logger;

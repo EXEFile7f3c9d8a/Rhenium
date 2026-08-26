@@ -152,7 +152,6 @@ public class Json{
                                     START,
                                     CURRENT_NAMELESS,
                                     deque,
-                                    JsonValue.Type.STRING,
                                     null
                             );
                             tags.disable(AFTER_COMMA);
@@ -164,7 +163,6 @@ public class Json{
                                     START,
                                     CURRENT_NAMELESS,
                                     deque,
-                                    JsonValue.Type.NUMBER,
                                     null
                             );
                             sb.append(c);
@@ -178,7 +176,6 @@ public class Json{
                                     CURRENT_NAMELESS,
                                     deque,
                                     new ArrayMap<String, JsonValue>(),
-                                    JsonValue.Type.OBJECT,
                                     null
                             );
                             tags.disable(CURRENT_NAMELESS, AFTER_COMMA);
@@ -191,7 +188,6 @@ public class Json{
                                     CURRENT_NAMELESS,
                                     deque,
                                     new ArrayList<JsonValue>(),
-                                    JsonValue.Type.ARRAY,
                                     null
                             );
                             tags.enable(CURRENT_NAMELESS);
@@ -204,7 +200,6 @@ public class Json{
                                     START,
                                     CURRENT_NAMELESS,
                                     deque,
-                                    c == 'n' ? JsonValue.Type.NULL : JsonValue.Type.BOOLEAN,
                                     null
                             );
                             if(c == 't')status = Status.VALUE_BOOLEAN_TRUE;
@@ -338,12 +333,10 @@ public class Json{
                 int START,
                 int CURRENT_NAMELESS,
                 Deque<JsonValue> deque,
-                JsonValue.Type type,
                 String name
         ){
             if(tags.isSet(CURRENT_NAMELESS) && !tags.isSet(START)){
                 deque.push(new JsonValue()
-                        .setType(type)
                         .setParent(deque.peek())
                         .setName(name));
                 if(deque.element().getParent() != null){
@@ -353,7 +346,7 @@ public class Json{
                     else ((ArrayList<JsonValue>)deque.element().getParent().getValue()).add(deque.element());
                 }
             }
-            else if(tags.isSet(START))deque.element().setType(type);
+            else if(tags.isSet(START))deque.element();
         }
         public static void VALUE_UNKNOWN_ifNamelessPush(
                 BitMask tags,
@@ -361,13 +354,11 @@ public class Json{
                 int CURRENT_NAMELESS,
                 Deque<JsonValue> deque,
                 Object value,
-                JsonValue.Type type,
                 String name
         ){
             if(tags.isSet(CURRENT_NAMELESS) && !tags.isSet(START)){
                 deque.push(new JsonValue()
                         .setValue(value)
-                        .setType(type)
                         .setParent(deque.peek())
                         .setName(name));
                 if(deque.element().getParent() != null){
@@ -378,9 +369,7 @@ public class Json{
                 }
             }
             else if(tags.isSet(START)){
-                deque.element()
-                     .setValue(value)
-                     .setType(type);
+                deque.element().setValue(value);
                 tags.disable(START);
             }
             else deque.element().setValue(value);

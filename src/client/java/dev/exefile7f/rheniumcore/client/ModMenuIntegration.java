@@ -21,8 +21,7 @@ public class ModMenuIntegration implements ModMenuApi{
         return parent -> {
             ConfigBuilder builder = ConfigBuilder.create()
                     .setParentScreen(parent)
-                    .setTitle(Text.of("Title"))
-                    .solidBackground();
+                    .setTitle(Text.of("Title"));
             ConfigEntryBuilder toggle = builder.entryBuilder();
             ConfigCategory general = builder.getOrCreateCategory(Text.of("catagory"));
             String name = "switch";
