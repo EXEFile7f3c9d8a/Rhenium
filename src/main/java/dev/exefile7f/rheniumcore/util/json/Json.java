@@ -412,16 +412,14 @@ public class Json{
         }
         public static String invalidJsonNumber(String file, int i, String number){
             i -= number.length();
-            return "Invalid JSON number at " +
+            return "Invalid JSON number \"" + number + "\" at " +
                     Strings.toLineCharFormat(file, i) +
-                    " (index " + i + ") -> " +
-                    number;
+                    " (index " + i + ')';
         }
         public static String invalidToken(String file, int i, String token){
-            return "Invalid token at " +
+            return "Invalid token \"" + token + "\" at " +
                     Strings.toLineCharFormat(file, i) +
-                    " (index " + i + ") -> " +
-                    token;
+                    " (index " + i + ')';
         }
         public static String unexpectedClosing(char c, String file, int i){
             return "Unexpected closing '" + c + "' at " +
