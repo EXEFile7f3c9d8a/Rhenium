@@ -120,7 +120,7 @@ public interface StaticResource{
         return t;
     }
     static Path getConfigPath(){
-        return Path.of(FabricLoader.getInstance().getConfigDir().toString(), "\\" + RheniumCore.MOD_ID) ;
+        return Path.of(FabricLoader.getInstance().getConfigDir().toString(), "\\" + RheniumCore.MOD_ID + ".json") ;
     }
     static Tasks.Task[] replaceArrayNull(Tasks.Task[] array){
         for(int i = 0; i < array.length; i++){

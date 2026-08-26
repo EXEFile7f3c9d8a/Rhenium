@@ -19,9 +19,12 @@ public class Json{
     private String indentation = "    ";
     private JsonValue box;
 
-    public Json(){}
+    public Json(){
+        this.box = new JsonValue();
+    }
     public Json(Path file){
         setFile(file);
+        this.box = new JsonValue();
     }
     @Override
     public String toString(){
@@ -51,6 +54,7 @@ public class Json{
      *
      */
     public Json read() throws IOException{
+        autoCreate();
         if(!isReadable())throw new IOException("Not a readable file");
         String file = Files.readString(this.file);
         if(file.isEmpty()){
@@ -298,9 +302,19 @@ public class Json{
         return this;
     }
     public Json write()throws IOException{
+        autoCreate();
         if(!isWritable())throw new IOException("Not a writable file");
         Files.writeString(file, this.toString());
         return this;
+    }
+    public JsonValue get(){
+        return box;
+    }
+    public JsonValue get(String name){
+        return box.get(name);
+    }
+    public JsonValue get(int index){
+        return box.get(index);
     }
     private static final class ParserFunction{
         private ParserFunction(){}
@@ -452,7 +466,10 @@ public class Json{
     }
     public Json autoCreate(){
         try{
-            Files.createFile(file);
+            if(!Files.exists(file)){
+                Files.createFile(file);
+                Files.writeString(file, "{}");
+            }
         }catch(IOException e){
             throw new RuntimeException(e);
         }

@@ -22,10 +22,15 @@ public class JsonValue{
     private Object value;
     private JsonValue parent;
     private Type type;
-    public JsonValue get(String name){
-        if(isObject())return ((ArrayMap<String, JsonValue>)value).get(name);
+    public JsonValue get(int index){
+        if(this.isArray())return ((List<JsonValue>)value).get(--index);
         else return null;
     }
+    public JsonValue get(String name){
+        if(this.isObject())return this.getAsObject().get(name);
+        else return null;
+    }
+    public JsonValue(){}
     @Override
     public String toString(){
         return toString(0, "    ");
@@ -41,7 +46,7 @@ public class JsonValue{
         if(this.isObject()){
             depth++;
             sb.append('{');
-            ArrayMap<String, JsonValue> map = (ArrayMap<String, JsonValue>)value;
+            ArrayMap<String, JsonValue> map = this.getAsObject();
             List<Entry<String, JsonValue>> entries = new ArrayList<>(map.getEntries());
             for(int i = 0; i < map.size(); i++){
                 Entry<String, JsonValue> entry = entries.get(i);
@@ -87,6 +92,14 @@ public class JsonValue{
     public JsonValue setType(Type type){
         this.type = type;
         return this;
+    }
+    public ArrayMap<String, JsonValue> getAsObject(){
+        if(this.isObject())return (ArrayMap<String, JsonValue>)getValue();
+        else return null;
+    }
+    public List<JsonValue> getAsArray(){
+        if(this.isObject())return (List<JsonValue>)getValue();
+        else return null;
     }
     public Object getValue(){
         return value;

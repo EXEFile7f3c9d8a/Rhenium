@@ -1,6 +1,7 @@
 package dev.exefile7f.rheniumcore.debug;
 
 import dev.exefile7f.rheniumcore.util.json.Json;
+import dev.exefile7f.rheniumcore.util.json.JsonValue;
 
 import java.nio.file.Path;
 
@@ -51,13 +52,20 @@ class _DEBUG{
         );
         long end = System.nanoTime();
         System.out.println((end - start) / 25 + " ns");
-        start = System.nanoTime();
-        System.out.println(
-                new Json(
-                        Path.of("F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json")
-                ).read().toString()
-        );
-        end = System.nanoTime();
-        System.out.println((end - start) / 25 + " ns");
+        Json json;
+        {
+            start = System.nanoTime();
+            json = new Json(Path.of("F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json"));
+            System.out.println(json.read().toString());
+            end = System.nanoTime();
+            System.out.println((end - start) / 25 + " ns");
+        }
+
+        {
+            JsonValue temp = json.get("map").get("array").get(4);
+            System.out.println(temp);
+            temp.setValue(!temp.toString().equals("true"));
+            json.write();
+        }
     }
 }

@@ -9,6 +9,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;
 
+import java.io.IOException;
+
+import static dev.exefile7f.rheniumcore.client.RheniumCoreClient.config;
+
 @Environment(EnvType.CLIENT)
 public class ModMenuIntegration implements ModMenuApi{
 
@@ -21,10 +25,16 @@ public class ModMenuIntegration implements ModMenuApi{
                     .solidBackground();
             ConfigEntryBuilder toggle = builder.entryBuilder();
             ConfigCategory general = builder.getOrCreateCategory(Text.of("catagory"));
-            general.addEntry(toggle.startBooleanToggle(Text.of("switch"), true)
+            String name = "switch";
+            general.addEntry(toggle.startBooleanToggle(Text.of(name), config.get(name) == null ? false : (boolean)config.get(name).getValue())
                     .setDefaultValue(false)
                     .setSaveConsumer((value) -> {
-
+                        config.save(name, value);
+                        try{
+                            config.write();
+                        }catch(IOException e){
+                            throw new RuntimeException(e);
+                        }
                     }).build());
 
             return builder.build();
