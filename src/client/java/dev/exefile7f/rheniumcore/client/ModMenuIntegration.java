@@ -35,7 +35,6 @@ public class ModMenuIntegration implements ModMenuApi{
                             throw new RuntimeException(e);
                         }
                     }).build());
-
             return builder.build();
         };
     }

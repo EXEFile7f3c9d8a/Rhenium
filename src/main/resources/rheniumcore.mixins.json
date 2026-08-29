@@ -4,6 +4,7 @@
     "compatibilityLevel": "JAVA_21",
     "mixins": [
         "sensor.ArmadilloScareDetectedSensorMixin",
+        "sensor.HoglinSpecificSensorMixin",
         "sensor.NearestLivingEntitiesSensorMixin",
         "sensor.NearestPlayersSensorMixin",
         "server.ServerWorldMixin"

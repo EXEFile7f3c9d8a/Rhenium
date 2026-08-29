@@ -403,12 +403,12 @@ public class Json{
         public static String unexpectedChar(char c, String file, int i){
             return "Unexpected character '" + c + "' at " +
                     Strings.toLineCharFormat(file, i) +
-                    " (index " + i + ")";
+                    " (index " + i + ')';
         }
         public static String unexpectedLineBreak(String file, int i){
             return "Unexpected line break at " +
                     Strings.toLineCharFormat(file, i) +
-                    " (index " + i + ")";
+                    " (index " + i + ')';
         }
         public static String invalidJsonNumber(String file, int i, String number){
             i -= number.length();
@@ -424,12 +424,12 @@ public class Json{
         public static String unexpectedClosing(char c, String file, int i){
             return "Unexpected closing '" + c + "' at " +
                     Strings.toLineCharFormat(file, i) +
-                    " (index " + i + ")";
+                    " (index " + i + ')';
         }
         public static String unexpectedEOF(String file, int i){
             return "Unexpected end of file at " +
                     Strings.toLineCharFormat(file, i) +
-                    " (index " + i + ")";
+                    " (index " + i + ')';
         }
     }
     public boolean isWritable(){

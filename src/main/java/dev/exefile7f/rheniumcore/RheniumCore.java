@@ -11,7 +11,8 @@ import static dev.exefile7f.rheniumcore.statics.StaticResource.*;
 public class RheniumCore implements ModInitializer {
 	public static final String MOD_ID = "rheniumcore";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-    public static ThreadPool THREAD_POOL = new ThreadPool();
+    public static MixinComputesReg MIXIN_REG = new MixinComputesReg();
+    public static ThreadPool THREAD_POOL = new ThreadPool(MIXIN_REG.getInputMethods());
 
 	@Override
 	public void onInitialize() {

@@ -1,7 +1,7 @@
 package dev.exefile7f.rheniumcore.util.threadpool;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -10,28 +10,32 @@ import static dev.exefile7f.rheniumcore.statics.StaticResource.*;
 public class Tasks{
     public static class Task{
         public Object[] input;
-        public int status;
-        public int computeType;
+        public Class<?> computeType;
         public Object[] output;
         public Task(){
-            this.status = NONE;
-            computeType = -1;
+            computeType = Void.class;
         }
-        public Task putInput(Object obj){
+        public Task putInputs(Object obj){
             synchronized(input){
                 input[input.length - 1] = obj;
             }
             return this;
         }
-        public Task setStatus(int i){
-            synchronized(input){
-                this.status = i;
+        public Task putInputs(Object... objs){
+            for(int i = 0; i < objs.length; i++){
+                this.putInputs(objs[i]);
             }
             return this;
         }
-        public Task setComputeType(int i){
+        public Task setComputeType(Class<?> clazz){
             synchronized(input){
-                this.computeType = i;
+                this.computeType = clazz;
+            }
+            return this;
+        }
+        public Task putOutputs(Object... objs){
+            for(int i = 0; i < objs.length; i++){
+                this.putOutput(objs[i]);
             }
             return this;
         }
@@ -73,17 +77,22 @@ public class Tasks{
     }
     public Tasks addTask(Task tsk){
         synchronized(tasks){
-            checkSizeLimit();
+            grow();
             tasks[size.getAndIncrement()] = tsk;
         }
         return this;
     }
-    public void checkSizeLimit(){
-        if(size.get() >= tasks.length){
-            tasks = replaceArrayNull(Arrays.copyOf(tasks, (tasks.length) * 2));
+    public void grow(){
+        synchronized(tasks){
+            if(size.get() >= tasks.length){
+                tasks = replaceArrayNull(Arrays.copyOf(tasks, (tasks.length) * 2));
+                for(int i = 0; i < tasks.length; i++){
+                    if(tasks[i] == null)tasks[i] = new Task();
+                }
+            }
         }
     }
-    public void nextTask(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){
+    public void nextTask(Map<String, Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){
         synchronized(tasks){
             int i = counter.getAndIncrement();
             if(isDone(i)){
@@ -91,10 +100,10 @@ public class Tasks{
                 return;
             }
             Task current = tasks[i];
-            COMPUTE_FUNCTIONS.get(current.computeType).accept(current);
+            COMPUTE_FUNCTIONS.get(current.computeType.toString()).accept(current);
         }
     }
-    public void taskAll(List<Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){
+    public void taskAll(Map<String, Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){
         synchronized(taskCounter){
             while(!isDone(this.taskCounter.get())){
                 nextTask(COMPUTE_FUNCTIONS, pool, counter);
