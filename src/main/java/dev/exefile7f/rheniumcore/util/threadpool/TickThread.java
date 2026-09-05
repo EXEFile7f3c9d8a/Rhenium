@@ -1,7 +1,6 @@
 package dev.exefile7f.rheniumcore.util.threadpool;
 
 import dev.exefile7f.rheniumcore.RheniumCore;
-import net.minecraft.world.tick.Tick;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -28,6 +27,6 @@ public class TickThread implements Consumer<ThreadPool> {
             }
             pool.tasks.nextTask(this.COMPUTE, pool, pool.tasks.taskCounter);
         }
-        RheniumCore.LOGGER.info("{} Shutting down!", this.id);
+        RheniumCore.LOGGER.info("{}-thread shutting down!", this.id);
     }
 }

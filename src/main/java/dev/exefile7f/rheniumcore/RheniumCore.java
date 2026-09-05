@@ -8,15 +8,16 @@ import org.slf4j.LoggerFactory;
 
 import static dev.exefile7f.rheniumcore.statics.StaticResource.*;
 
-public class RheniumCore implements ModInitializer {
+public class RheniumCore implements ModInitializer{
 	public static final String MOD_ID = "rheniumcore";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static MixinComputesReg MIXIN_REG = new MixinComputesReg();
     public static ThreadPool THREAD_POOL = new ThreadPool(MIXIN_REG.getInputMethods());
-
+    public static String VERSION;
 	@Override
-	public void onInitialize() {
-        LOGGER.info("RheniumCore running! Version 1.0.0.000-alpha. Available cores:{}", CPU_CORES);
+	public void onInitialize(){
         THREAD_POOL.launchThreads();
+        VERSION = "0.0.0-alpha";
+        LOGGER.info("RheniumCore running! Version {}. Available cores:{}", VERSION, CPU_CORES);
 	}
 }

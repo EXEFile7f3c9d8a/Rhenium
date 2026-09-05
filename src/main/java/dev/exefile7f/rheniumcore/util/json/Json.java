@@ -7,6 +7,7 @@ import dev.exefile7f.rheniumcore.util.Strings;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -15,20 +16,73 @@ import java.util.Deque;
 import static dev.exefile7f.rheniumcore.util.json.Jsons.isIllegalJsonNumber;
 
 public class Json{
-    private Path file;
-    private String indentation = "    ";
-    private JsonValue box;
+    protected Path path;
+    protected String file;
+    protected String indentation = "    ";
+    protected JsonValue box;
 
     public Json(){
         this.box = new JsonValue();
     }
-    public Json(Path file){
-        setFile(file);
+    public Json(String file){
+        this.file = file;
+        this.box = new JsonValue();
+    }
+    public Json(Path path){
+        setPath(path);
         this.box = new JsonValue();
     }
     @Override
     public String toString(){
         return this.box.toString(indentation);
+    }
+    public boolean exists(){
+        return Files.exists(this.path);
+    }
+    public boolean isWritable(){
+        return Files.isWritable(this.path);
+    }
+    public boolean isReadable(){
+        return Files.isReadable(this.path);
+    }
+    public Json setPath(Path path){
+        if(Files.isDirectory(path))throw new IllegalArgumentException("Not a file: Path leads to a directory");
+        else this.path = path;
+        return this;
+    }
+    public Json setIndentation(String str){
+        this.indentation = str;
+        return this;
+    }
+    public Json setIndentation(int length){
+        this.indentation = " ".repeat(length);
+        return this;
+    }
+    public Json autoCreate(){
+        try{
+            if(!Files.exists(path)){
+                Files.createFile(path);
+                Files.writeString(path, "{}");
+            }
+        }catch(IOException e){
+            throw new RuntimeException(e);
+        }
+        return this;
+    }
+    public Json write()throws IOException{
+        autoCreate();
+        if(!isWritable())throw new IOException("Not a writable file");
+        Files.writeString(path, this.toString());
+        return this;
+    }
+    public JsonValue get(){
+        return box;
+    }
+    public JsonValue get(String name){
+        return box.get(name);
+    }
+    public JsonValue get(int index){
+        return box.get(index);
     }
     protected enum Status{
         NONE,
@@ -50,17 +104,22 @@ public class Json{
             this.value=value;
         }
     }
+    protected void syncFile() throws IOException{
+        if(this.path != null){
+            this.file = Files.readString(this.path);
+        }
+    }
     /**
      *
      */
     public Json read() throws IOException{
-        autoCreate();
-        if(!isReadable())throw new IOException("Not a readable file");
-        String file = Files.readString(this.file);
-        if(file.isEmpty()){
-            this.box = null;
-            return null;
+        if(this.file == null || this.file.isEmpty()){
+            if(this.path == null)throw new IllegalArgumentException("File path and copy string cannot both be null");
+            if(!this.exists())throw new NoSuchFileException("No such file: \"" + this.path.toAbsolutePath() + '"');
+            if(!this.isReadable())throw new IOException("Not a readable file: \"" + this.path.toAbsolutePath() + '"');
+            this.syncFile();
         }
+        String file = this.file;
         BitMask tags = new BitMask();
         final int START = tags.create();
         final int CURRENT_NAMELESS = tags.create();
@@ -296,21 +355,6 @@ public class Json{
         this.box = root;
         return this;
     }
-    public Json write()throws IOException{
-        autoCreate();
-        if(!isWritable())throw new IOException("Not a writable file");
-        Files.writeString(file, this.toString());
-        return this;
-    }
-    public JsonValue get(){
-        return box;
-    }
-    public JsonValue get(String name){
-        return box.get(name);
-    }
-    public JsonValue get(int index){
-        return box.get(index);
-    }
     private static final class ParserFunction{
         private ParserFunction(){}
         public static Status finishValue(
@@ -431,35 +475,5 @@ public class Json{
                     Strings.toLineCharFormat(file, i) +
                     " (index " + i + ')';
         }
-    }
-    public boolean isWritable(){
-        return Files.isWritable(file);
-    }
-    public boolean isReadable(){
-        return Files.isReadable(file);
-    }
-    public Json setFile(Path file){
-        if(Files.isDirectory(file)) throw new IllegalArgumentException("Not a file: Path leads to a directory");
-        else this.file = file;
-        return this;
-    }
-    public Json setIndentation(String str){
-        this.indentation = str;
-        return this;
-    }
-    public Json setIndentation(int length){
-        this.indentation = " ".repeat(length);
-        return this;
-    }
-    public Json autoCreate(){
-        try{
-            if(!Files.exists(file)){
-                Files.createFile(file);
-                Files.writeString(file, "{}");
-            }
-        }catch(IOException e){
-            throw new RuntimeException(e);
-        }
-        return this;
     }
 }

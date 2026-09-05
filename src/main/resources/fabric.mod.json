@@ -1,7 +1,7 @@
 {
     "schemaVersion": 1,
     "id": "rheniumcore",
-    "version": "1.0.0.000-alpha",
+    "version": "0.0.0-alpha",
     "name": "RheniumCore",
     "description": "Trying to solve the problem that Minecraft highly depends on one single core",
     "authors": [

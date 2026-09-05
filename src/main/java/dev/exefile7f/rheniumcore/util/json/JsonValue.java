@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 public class JsonValue{
-    private String name;
-    private Object value;
-    private JsonValue parent;
+    protected String name;
+    protected Object value;
+    protected JsonValue parent;
     public JsonValue get(int index){
         if(this.isArray())return ((List<JsonValue>)value).get(--index);
         else return null;
@@ -31,7 +31,7 @@ public class JsonValue{
     protected String toString(int depth){
         return toString(depth, "    ");
     }
-    private String toString(int depth, String indentation){
+    protected String toString(int depth, String indentation){
         StringBuilder sb = new StringBuilder();
         if(this.isObject()){
             depth++;
@@ -84,7 +84,11 @@ public class JsonValue{
         else return null;
     }
     public List<JsonValue> getAsArray(){
-        if(this.isObject())return (List<JsonValue>)getValue();
+        if(this.isArray())return (List<JsonValue>)getValue();
+        else return null;
+    }
+    public String getAsString(){
+        if(this.isString())return (String)getValue();
         else return null;
     }
     public Object getValue(){
