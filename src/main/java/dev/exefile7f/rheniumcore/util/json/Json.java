@@ -6,6 +6,7 @@ import dev.exefile7f.rheniumcore.util.RawNumber;
 import dev.exefile7f.rheniumcore.util.Strings;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -45,6 +46,12 @@ public class Json{
     public boolean isReadable(){
         return Files.isReadable(this.path);
     }
+    public long fileSize() throws IOException{
+        if(path == null){
+            return file.getBytes(StandardCharsets.UTF_8).length;
+        }
+        return Files.size(path);
+    }
     public Json setPath(Path path){
         if(Files.isDirectory(path))throw new IllegalArgumentException("Not a file: Path leads to a directory");
         else this.path = path;
@@ -75,6 +82,11 @@ public class Json{
         Files.writeString(path, this.toString());
         return this;
     }
+    public void syncFile() throws IOException{
+        if(this.path != null){
+            this.file = Files.readString(this.path);
+        }
+    }
     public JsonValue get(){
         return box;
     }
@@ -102,11 +114,6 @@ public class Json{
         Status(String sample,Object value){
             this.sample=sample;
             this.value=value;
-        }
-    }
-    protected void syncFile() throws IOException{
-        if(this.path != null){
-            this.file = Files.readString(this.path);
         }
     }
     /**

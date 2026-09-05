@@ -1,10 +1,10 @@
 {
-    "number": -1.2345e-123,
-    "string": "value",
-    "boolean": true,
-    "bool2": false,
-    "null": null,
-    "map": {
+    "1number": -1.2345e-123,
+    "1string": "value",
+    "1boolean": true,
+    "1bool2": false,
+    "1null": null,
+    "1map": {
         "number": 123,
         "string": "12\\\\\\\\\\\"\"\"\"\"\\\n\n\n\n\n\n3",
         "array": [
@@ -14,7 +14,282 @@
             },
             123,
             "123",
-            true,
+            false,
+            [
+                [
+                    [
+                        [
+                            [
+                                [
+                                    [
+                                        [
+                                            [
+                                                [
+                                                    [
+                                                        [
+                                                            [
+                                                                [
+                                                                    [
+                                                                        [
+                                                                            [
+                                                                                [
+                                                                                    "whatsup"
+                                                                                ]
+                                                                            ]
+                                                                        ]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    },
+    "2number": -1.2345e-123,
+    "2string": "value",
+    "2boolean": true,
+    "2bool2": false,
+    "2null": null,
+    "2map": {
+        "number": 123,
+        "string": "12\\\\\\\\\\\"\"\"\"\"\\\n\n\n\n\n\n3",
+        "array": [
+            {
+                "number": -1.2345e-123,
+                "string": "value"
+            },
+            123,
+            "123",
+            false,
+            [
+                [
+                    [
+                        [
+                            [
+                                [
+                                    [
+                                        [
+                                            [
+                                                [
+                                                    [
+                                                        [
+                                                            [
+                                                                [
+                                                                    [
+                                                                        [
+                                                                            [
+                                                                                [
+                                                                                    "whatsup"
+                                                                                ]
+                                                                            ]
+                                                                        ]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    },
+    "3number": -1.2345e-123,
+    "3string": "value",
+    "3boolean": true,
+    "3bool2": false,
+    "3null": null,
+    "3map": {
+        "number": 123,
+        "string": "12\\\\\\\\\\\"\"\"\"\"\\\n\n\n\n\n\n3",
+        "array": [
+            {
+                "number": -1.2345e-123,
+                "string": "value"
+            },
+            123,
+            "123",
+            false,
+            [
+                [
+                    [
+                        [
+                            [
+                                [
+                                    [
+                                        [
+                                            [
+                                                [
+                                                    [
+                                                        [
+                                                            [
+                                                                [
+                                                                    [
+                                                                        [
+                                                                            [
+                                                                                [
+                                                                                    "whatsup"
+                                                                                ]
+                                                                            ]
+                                                                        ]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    },
+    "4number": -1.2345e-123,
+    "4string": "value",
+    "4boolean": true,
+    "4bool2": false,
+    "4null": null,
+    "4map": {
+        "number": 123,
+        "string": "12\\\\\\\\\\\"\"\"\"\"\\\n\n\n\n\n\n3",
+        "array": [
+            {
+                "number": -1.2345e-123,
+                "string": "value"
+            },
+            123,
+            "123",
+            false,
+            [
+                [
+                    [
+                        [
+                            [
+                                [
+                                    [
+                                        [
+                                            [
+                                                [
+                                                    [
+                                                        [
+                                                            [
+                                                                [
+                                                                    [
+                                                                        [
+                                                                            [
+                                                                                [
+                                                                                    "whatsup"
+                                                                                ]
+                                                                            ]
+                                                                        ]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    },
+    "5number": -1.2345e-123,
+    "5string": "value",
+    "5boolean": true,
+    "5bool2": false,
+    "5null": null,
+    "5map": {
+        "number": 123,
+        "string": "12\\\\\\\\\\\"\"\"\"\"\\\n\n\n\n\n\n3",
+        "array": [
+            {
+                "number": -1.2345e-123,
+                "string": "value"
+            },
+            123,
+            "123",
+            false,
+            [
+                [
+                    [
+                        [
+                            [
+                                [
+                                    [
+                                        [
+                                            [
+                                                [
+                                                    [
+                                                        [
+                                                            [
+                                                                [
+                                                                    [
+                                                                        [
+                                                                            [
+                                                                                [
+                                                                                    "whatsup"
+                                                                                ]
+                                                                            ]
+                                                                        ]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    },
+    "6number": -1.2345e-123,
+    "6string": "value",
+    "6boolean": true,
+    "6bool2": false,
+    "6null": null,
+    "6map": {
+        "number": 123,
+        "string": "12\\\\\\\\\\\"\"\"\"\"\\\n\n\n\n\n\n3",
+        "array": [
+            {
+                "number": -1.2345e-123,
+                "string": "value"
+            },
+            123,
+            "123",
+            false,
             [
                 [
                     [
