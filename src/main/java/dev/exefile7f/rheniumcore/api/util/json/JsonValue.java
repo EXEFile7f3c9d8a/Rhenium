@@ -1,8 +1,8 @@
-package dev.exefile7f.rheniumcore.util.json;
+package dev.exefile7f.rheniumcore.api.util.json;
 
-import dev.exefile7f.rheniumcore.util.ArrayMap;
-import dev.exefile7f.rheniumcore.util.Entry;
-import dev.exefile7f.rheniumcore.util.RawNumber;
+import dev.exefile7f.rheniumcore.api.util.ArrayMap;
+import dev.exefile7f.rheniumcore.api.util.Entry;
+import dev.exefile7f.rheniumcore.api.util.RawNumber;
 
 import java.util.ArrayList;
 import java.util.List;

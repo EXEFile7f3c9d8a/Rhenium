@@ -1,4 +1,4 @@
-package dev.exefile7f.rheniumcore.util;
+package dev.exefile7f.rheniumcore.api.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

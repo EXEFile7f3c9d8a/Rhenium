@@ -1,8 +1,7 @@
 package dev.exefile7f.rheniumcore.debug;
 
-import dev.exefile7f.rheniumcore.util.Timer;
-import dev.exefile7f.rheniumcore.util.json.Json;
-import dev.exefile7f.rheniumcore.util.json.JsonValue;
+import dev.exefile7f.rheniumcore.api.util.Timer;
+import dev.exefile7f.rheniumcore.api.util.json.Json;
 
 import java.nio.file.Path;
 
@@ -53,7 +52,7 @@ class _DEBUG{
         {
             Json json = new Json(Path.of("F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json"));
             {
-                System.out.println("File size:" + json.fileSize());
+                System.out.println("File size:" + json.size());
                 timer.start();
                 json.syncFile();
                 System.out.println("IO time:" + timer.stop());
@@ -61,22 +60,24 @@ class _DEBUG{
                 json.read();
                 System.out.println("parse time:" + timer.stop());
                 timer.start();
-                System.out.println(json.toString());
+                System.out.println(json);
                 System.out.println("rephrase time:" + timer.stop());
             }
             {
                 //stress test
-                for (int i = 0; i < 2000; i++) {
+                for(int i = 0; i < 10000; i++){
                     json.read();
                 }
+                System.out.println("Warm up finished");
+                int repeats = 100_000;
                 long start = System.nanoTime();
-                for (int i = 0; i < 100_000; i++) {
+                for(int i = 0; i < repeats; i++){
                     json.read();
                 }
                 long end = System.nanoTime();
                 double ms = (end - start) / 1_000_000.0;
                 System.out.println("total = " + ms + " ms");
-                System.out.println("average = " + ms / 10000 + " ms");
+                System.out.println("average = " + ms / repeats + " ms");
             }
 //            {
 //                JsonValue temp = json.get("1map").get("array").get(4);

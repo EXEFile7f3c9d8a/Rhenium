@@ -1,4 +1,4 @@
-package dev.exefile7f.rheniumcore.util.threadpool;
+package dev.exefile7f.rheniumcore.api.util.threadpool;
 
 import java.util.Arrays;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package dev.exefile7f.rheniumcore;
 
-import dev.exefile7f.rheniumcore.util.threadpool.Tasks;
+import dev.exefile7f.rheniumcore.api.util.threadpool.Tasks;
 
 import java.util.HashMap;
 import java.util.Map;

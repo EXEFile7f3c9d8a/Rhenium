@@ -1,11 +1,11 @@
-package dev.exefile7f.rheniumcore.util;
+package dev.exefile7f.rheniumcore.api.util;
 
 public class BitMask{
     private int nextBits;
     private int bits;
     public BitMask(){}
     public int create(){
-        if(nextBits >= 64)return 0;
+        if(nextBits >= 32)return 0;
         return 1 << nextBits++;
     }
     public boolean isSet(int num){

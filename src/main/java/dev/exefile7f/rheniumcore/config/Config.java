@@ -1,7 +1,7 @@
 package dev.exefile7f.rheniumcore.config;
 
-import dev.exefile7f.rheniumcore.util.json.Json;
-import dev.exefile7f.rheniumcore.util.json.JsonValue;
+import dev.exefile7f.rheniumcore.api.util.json.Json;
+import dev.exefile7f.rheniumcore.api.util.json.JsonValue;
 import org.slf4j.Logger;
 
 import java.io.IOException;

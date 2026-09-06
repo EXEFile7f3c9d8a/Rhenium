@@ -1,4 +1,4 @@
-package dev.exefile7f.rheniumcore.util;
+package dev.exefile7f.rheniumcore.api.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,9 +9,9 @@ public class ArrayMap<K, V> extends HashMap<K, V>{
     public ArrayMap(){
         super();
     }
-    public List<dev.exefile7f.rheniumcore.util.Entry<K, V>> getEntries(){
-        List<dev.exefile7f.rheniumcore.util.Entry<K, V>> t = new ArrayList<>();
-        for(int i = 0; i < super.size(); i++)t.add(new dev.exefile7f.rheniumcore.util.Entry<K, V>().setK(list.get(i)).setV(super.get(list.get(i))));
+    public List<dev.exefile7f.rheniumcore.api.util.Entry<K, V>> getEntries(){
+        List<dev.exefile7f.rheniumcore.api.util.Entry<K, V>> t = new ArrayList<>();
+        for(int i = 0; i < super.size(); i++)t.add(new dev.exefile7f.rheniumcore.api.util.Entry<K, V>().setK(list.get(i)).setV(super.get(list.get(i))));
         return t;
     }
     @Override

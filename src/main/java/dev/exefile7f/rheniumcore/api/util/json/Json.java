@@ -1,9 +1,10 @@
-package dev.exefile7f.rheniumcore.util.json;
+package dev.exefile7f.rheniumcore.api.util.json;
 
-import dev.exefile7f.rheniumcore.util.ArrayMap;
-import dev.exefile7f.rheniumcore.util.BitMask;
-import dev.exefile7f.rheniumcore.util.RawNumber;
-import dev.exefile7f.rheniumcore.util.Strings;
+import dev.exefile7f.rheniumcore.api.exceptions.UnexpectedCharException;
+import dev.exefile7f.rheniumcore.api.util.ArrayMap;
+import dev.exefile7f.rheniumcore.api.util.BitMask;
+import dev.exefile7f.rheniumcore.api.util.RawNumber;
+import dev.exefile7f.rheniumcore.api.util.Strings;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,8 +14,6 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-
-import static dev.exefile7f.rheniumcore.util.json.Jsons.isIllegalJsonNumber;
 
 public class Json{
     protected Path path;
@@ -46,7 +45,7 @@ public class Json{
     public boolean isReadable(){
         return Files.isReadable(this.path);
     }
-    public long fileSize() throws IOException{
+    public long size() throws IOException{
         if(path == null){
             return file.getBytes(StandardCharsets.UTF_8).length;
         }
@@ -76,16 +75,17 @@ public class Json{
         }
         return this;
     }
-    public Json write()throws IOException{
+    public Json write() throws IOException{
         autoCreate();
         if(!isWritable())throw new IOException("Not a writable file");
         Files.writeString(path, this.toString());
         return this;
     }
-    public void syncFile() throws IOException{
+    public Json syncFile() throws IOException{
         if(this.path != null){
             this.file = Files.readString(this.path);
         }
+        return this;
     }
     public JsonValue get(){
         return box;
@@ -111,9 +111,9 @@ public class Json{
         String sample;
         Object value;
         Status(){}
-        Status(String sample,Object value){
-            this.sample=sample;
-            this.value=value;
+        Status(String sample, Object value){
+            this.sample = sample;
+            this.value = value;
         }
     }
     /**
@@ -153,14 +153,14 @@ public class Json{
                             if(tags.isSet(AFTER_COMMA))throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
                             else status = ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, c == '}');
                         }
-                        default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                        default ->  throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
                 case AFTER_STATEMENT -> {
                     switch(c){
                         case ' ', '\r', '\n' -> {}
                         case ',' -> {
-                            if(tags.isSet(AFTER_COMMA))throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                            if(tags.isSet(AFTER_COMMA))throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                             else{
                                 if(deque.element().isObject())status = Status.NONE;
                                 else if(deque.element().isArray())status = Status.VALUE_UNKNOWN;
@@ -171,7 +171,7 @@ public class Json{
                             if(tags.isSet(AFTER_COMMA))throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
                             else status = ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, c == '}');
                         }
-                        default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                        default ->  throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
                 case NAME -> {
@@ -206,7 +206,7 @@ public class Json{
                     switch(c){
                         case ' ', '\r', '\n' -> {}
                         case ':' -> status = Status.VALUE_UNKNOWN;
-                        default -> throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                        default -> throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
                 case VALUE_UNKNOWN -> {
@@ -275,7 +275,7 @@ public class Json{
                             sb.append(c);
                         }
                         case '}', ']' -> throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
-                        default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                        default ->  throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
                 case VALUE_STRING -> {
@@ -303,7 +303,7 @@ public class Json{
                     switch(c){
                         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', 'e', 'E', '.' -> sb.append(c);
                         case ' ', ',', ']', '}', '\n', '\r' -> {
-                            if(isIllegalJsonNumber(sb.toString()))throw new IllegalArgumentException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
+                            if(isIllegalNumber(sb.toString()))throw new IllegalArgumentException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
                             else{
                                 deque.element().setValue(new RawNumber(sb.toString()));
                                 deque.pop();
@@ -312,7 +312,7 @@ public class Json{
                                 if(c != ']' && c != '}')i--;
                             }
                         }
-                        default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                        default ->  throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
                 case VALUE_BOOLEAN_TRUE, VALUE_BOOLEAN_FALSE, VALUE_NULL -> {
@@ -328,7 +328,7 @@ public class Json{
                                 if(c != ']' && c != '}')i--;
                             }
                         }
-                        default ->  throw new IllegalArgumentException(Exceptions.unexpectedChar(c, file, i));
+                        default ->  throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
             }
@@ -336,7 +336,7 @@ public class Json{
         switch(status){
             case NAME, AFTER_NAME, VALUE_UNKNOWN, VALUE_STRING -> throw new IllegalArgumentException(Exceptions.unexpectedEOF(file, i));
             case VALUE_NUMBER -> {
-                if(isIllegalJsonNumber(sb.toString()))throw new IllegalArgumentException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
+                if(isIllegalNumber(sb.toString()))throw new IllegalArgumentException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
                 else{
                     deque.element().setValue(new RawNumber(sb.toString()));
                     deque.pop();
@@ -482,5 +482,104 @@ public class Json{
                     Strings.toLineCharFormat(file, i) +
                     " (index " + i + ')';
         }
+    }
+    public static boolean isIllegalNumber(String number){
+        enum Status{
+            START,
+            INTEGERS,
+            DECIMAL,
+            EXPONENT,
+        }
+        BitMask tags = new BitMask();
+        int AFTER_NEGATIVE = tags.create();
+        int START_WITH_0 = tags.create();
+        int AFTER_EXPONENT = tags.create();
+        int AFTER_DECIMAL = tags.create();
+        int AFTER_EXPONENT_SIGNS = tags.create();
+        int AFTER_EXPONENT_NUMBERS = tags.create();
+        Status status = Status.START;
+        int i = 0;
+        for(; i < number.length(); i++){
+            char c = number.charAt(i);
+            switch(status){
+                case START -> {
+                    switch(c){
+                        case '-' -> {
+                            tags.enable(AFTER_NEGATIVE);
+                            status = Status.INTEGERS;
+                        }
+                        case '0' -> {
+                            tags.enable(START_WITH_0);
+                            status = Status.INTEGERS;
+                        }
+                        case '1', '2', '3', '4', '5', '6', '7', '8', '9' -> status = Status.INTEGERS;
+                        default -> {return true;}
+                    }
+                }
+                case INTEGERS -> {
+                    switch(c){
+                        case '0' -> {
+                            if(tags.isSet(START_WITH_0))return true;
+                            if(tags.isSet(AFTER_NEGATIVE)){
+                                tags.enable(START_WITH_0);
+                                tags.disable(AFTER_NEGATIVE);
+                            }
+                        }
+                        case '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                            if(tags.isSet(AFTER_NEGATIVE))tags.disable(AFTER_NEGATIVE);
+                            if(tags.isSet(START_WITH_0))return true;
+                        }
+                        case '.' -> {
+                            if(tags.isSet(AFTER_NEGATIVE))return true;
+                            else{
+                                tags.enable(AFTER_DECIMAL);
+                                status = Status.DECIMAL;
+                            }
+                        }
+                        case 'e', 'E' -> {
+                            if(tags.isSet(AFTER_NEGATIVE))return true;
+                            tags.enable(AFTER_EXPONENT);
+                            status = Status.EXPONENT;
+                        }
+                        default -> {return true;}
+                    }
+                }
+                case DECIMAL -> {
+                    switch(c){
+                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> tags.disable(AFTER_DECIMAL);
+                        case 'e', 'E' -> {
+                            if(tags.isSet(AFTER_DECIMAL))return true;
+                            else{
+                                tags.enable(AFTER_EXPONENT);
+                                tags.disable(AFTER_DECIMAL);
+                                status = Status.EXPONENT;
+                            }
+                        }
+                        default -> {return true;}
+                    }
+                }
+                case EXPONENT -> {
+                    switch(c){
+                        case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                            tags.disable(AFTER_EXPONENT);
+                            tags.disable(AFTER_EXPONENT_SIGNS);
+                            tags.enable(AFTER_EXPONENT_NUMBERS);
+                        }
+                        case '-', '+' -> {
+                            if(tags.isSet(AFTER_EXPONENT_NUMBERS)|| tags.isSet(AFTER_EXPONENT_SIGNS))return true;
+                            else{
+                                tags.disable(AFTER_EXPONENT);
+                                tags.enable(AFTER_EXPONENT_SIGNS);
+                            }
+                        }
+                        default -> {return true;}
+                    }
+                }
+            }
+        }
+        return  tags.isSet(AFTER_NEGATIVE) ||
+                tags.isSet(AFTER_DECIMAL) ||
+                tags.isSet(AFTER_EXPONENT)||
+                tags.isSet(AFTER_EXPONENT_SIGNS);
     }
 }

@@ -1,6 +1,6 @@
 package dev.exefile7f.rheniumcore;
 
-import dev.exefile7f.rheniumcore.util.threadpool.ThreadPool;
+import dev.exefile7f.rheniumcore.api.util.threadpool.ThreadPool;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;

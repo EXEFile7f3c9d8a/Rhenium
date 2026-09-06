@@ -1,7 +1,7 @@
-package dev.exefile7f.rheniumcore.util.threadpool;
+package dev.exefile7f.rheniumcore.api.util.threadpool;
 
-import dev.exefile7f.rheniumcore.util.Lock;
-import dev.exefile7f.rheniumcore.util.Id;
+import dev.exefile7f.rheniumcore.api.util.Lock;
+import dev.exefile7f.rheniumcore.api.util.Id;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,12 +1,12 @@
 package dev.exefile7f.rheniumcore.statics;
 
 import dev.exefile7f.rheniumcore.RheniumCore;
-import dev.exefile7f.rheniumcore.util.threadpool.Tasks;
+import dev.exefile7f.rheniumcore.api.util.threadpool.Tasks;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.nio.file.Path;
 
-import static dev.exefile7f.rheniumcore.util.Systems.getCores;
+import static dev.exefile7f.rheniumcore.api.util.Systems.getCores;
 
 public interface StaticResource{
     int CPU_CORES = getCores();
