@@ -1,4 +1,4 @@
-package dev.exefile7f.rheniumcore.api.exceptions;
+package dev.exefile7f.rheniumcore.api.exceptions.input;
 
 public class UnexpectedCharException extends IllegalArgumentException{
     public UnexpectedCharException(){

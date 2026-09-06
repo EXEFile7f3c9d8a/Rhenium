@@ -1,6 +1,11 @@
 package dev.exefile7f.rheniumcore.api.util.json;
 
-import dev.exefile7f.rheniumcore.api.exceptions.UnexpectedCharException;
+import dev.exefile7f.rheniumcore.api.exceptions.input.InvalidTokenException;
+import dev.exefile7f.rheniumcore.api.exceptions.input.UnexpectedCharException;
+import dev.exefile7f.rheniumcore.api.exceptions.input.UnexpectedEOFException;
+import dev.exefile7f.rheniumcore.api.exceptions.input.UnexpectedLineBreakException;
+import dev.exefile7f.rheniumcore.api.exceptions.json.IllegalJsonNumberException;
+import dev.exefile7f.rheniumcore.api.exceptions.json.UnexpectedClosingException;
 import dev.exefile7f.rheniumcore.api.util.ArrayMap;
 import dev.exefile7f.rheniumcore.api.util.BitMask;
 import dev.exefile7f.rheniumcore.api.util.RawNumber;
@@ -150,7 +155,7 @@ public class Json{
                             status = Status.NAME;
                         }
                         case ']', '}' -> {
-                            if(tags.isSet(AFTER_COMMA))throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
+                            if(tags.isSet(AFTER_COMMA))throw new UnexpectedClosingException(Exceptions.unexpectedClosing(c, file, i));
                             else status = ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, c == '}');
                         }
                         default ->  throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
@@ -168,7 +173,7 @@ public class Json{
                             }
                         }
                         case ']', '}' -> {
-                            if(tags.isSet(AFTER_COMMA))throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
+                            if(tags.isSet(AFTER_COMMA))throw new UnexpectedClosingException(Exceptions.unexpectedClosing(c, file, i));
                             else status = ParserFunction.closing(tags, AFTER_COMMA, deque, c, file, i, CURRENT_NAMELESS, c == '}');
                         }
                         default ->  throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
@@ -195,7 +200,7 @@ public class Json{
                             tags.flip(AFTER_BACKSLASH);
                             sb.append(c);
                         }
-                        case '\n', '\r' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
+                        case '\n', '\r' -> throw new UnexpectedLineBreakException(Exceptions.unexpectedLineBreak(file, i));
                         default -> {
                             tags.disable(AFTER_BACKSLASH);
                             sb.append(c);
@@ -274,7 +279,7 @@ public class Json{
                             tags.disable(AFTER_COMMA);
                             sb.append(c);
                         }
-                        case '}', ']' -> throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
+                        case '}', ']' -> throw new UnexpectedClosingException(Exceptions.unexpectedClosing(c, file, i));
                         default ->  throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                     }
                 }
@@ -295,7 +300,7 @@ public class Json{
                             tags.flip(AFTER_BACKSLASH);
                             sb.append(c);
                         }
-                        case '\n' -> throw new IllegalArgumentException(Exceptions.unexpectedLineBreak(file, i));
+                        case '\n' -> throw new UnexpectedLineBreakException(Exceptions.unexpectedLineBreak(file, i));
                         default -> sb.append(c);
                     }
                 }
@@ -303,7 +308,7 @@ public class Json{
                     switch(c){
                         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', 'e', 'E', '.' -> sb.append(c);
                         case ' ', ',', ']', '}', '\n', '\r' -> {
-                            if(isIllegalNumber(sb.toString()))throw new IllegalArgumentException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
+                            if(isIllegalNumber(sb.toString()))throw new IllegalJsonNumberException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
                             else{
                                 deque.element().setValue(new RawNumber(sb.toString()));
                                 deque.pop();
@@ -319,7 +324,7 @@ public class Json{
                     switch(c){
                         case 't', 'r', 'u', 'e', 'f', 'a', 'l', 's', 'n' -> sb.append(c);
                         case ' ', ',', '}', ']', '\n', '\r' -> {
-                            if(!sb.toString().equals(status.sample))throw new IllegalArgumentException(Exceptions.invalidToken(file, i, sb.toString()));
+                            if(!sb.toString().equals(status.sample))throw new InvalidTokenException(Exceptions.invalidToken(file, i, sb.toString()));
                             else{
                                 deque.element().setValue(status.value);
                                 deque.pop();
@@ -334,9 +339,9 @@ public class Json{
             }
         }
         switch(status){
-            case NAME, AFTER_NAME, VALUE_UNKNOWN, VALUE_STRING -> throw new IllegalArgumentException(Exceptions.unexpectedEOF(file, i));
+            case NAME, AFTER_NAME, VALUE_UNKNOWN, VALUE_STRING -> throw new UnexpectedEOFException(Exceptions.unexpectedEOF(file, i));
             case VALUE_NUMBER -> {
-                if(isIllegalNumber(sb.toString()))throw new IllegalArgumentException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
+                if(isIllegalNumber(sb.toString()))throw new IllegalJsonNumberException(Exceptions.invalidJsonNumber(file, i, sb.toString()));
                 else{
                     deque.element().setValue(new RawNumber(sb.toString()));
                     deque.pop();
@@ -344,7 +349,7 @@ public class Json{
                 }
             }
             case VALUE_BOOLEAN_TRUE, VALUE_BOOLEAN_FALSE, VALUE_NULL -> {
-                if(!sb.toString().equals(status.sample))throw new IllegalArgumentException(Exceptions.invalidToken(file, i, sb.toString()));
+                if(!sb.toString().equals(status.sample))throw new InvalidTokenException(Exceptions.invalidToken(file, i, sb.toString()));
                 else{
                     deque.element().setValue(status.value);
                     deque.pop();
@@ -358,7 +363,7 @@ public class Json{
                         Strings.toLineCharFormat(file, i) +
                         " (index " + i + ")"
         );
-        if(!sb.isEmpty() || tags.isSet(AFTER_BACKSLASH, AFTER_COMMA))throw new IllegalArgumentException(Exceptions.unexpectedEOF(file, i));
+        if(!sb.isEmpty() || tags.isSet(AFTER_BACKSLASH, AFTER_COMMA))throw new UnexpectedEOFException(Exceptions.unexpectedEOF(file, i));
         this.box = root;
         return this;
     }
@@ -436,7 +441,7 @@ public class Json{
                 boolean isObject
         ){
             if(tags.isSet(AFTER_COMMA) || (isObject ? !deque.element().isObject() : !deque.element().isArray()))
-                throw new IllegalArgumentException(Exceptions.unexpectedClosing(c, file, i));
+                throw new UnexpectedClosingException(Exceptions.unexpectedClosing(c, file, i));
             else{
                 JsonValue value = deque.element();
                 deque.pop();
