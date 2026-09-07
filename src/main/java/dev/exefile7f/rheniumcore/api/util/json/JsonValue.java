@@ -4,10 +4,26 @@ import dev.exefile7f.rheniumcore.api.util.ArrayMap;
 import dev.exefile7f.rheniumcore.api.util.Entry;
 import dev.exefile7f.rheniumcore.api.util.RawNumber;
 
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A in-memory format of Json data
+ *
+ * <p>This class saves Json data as a small object in a tree structure, for example;
+ * {@snippet lang=JSON:
+ *         {
+ *             "number": -123E+123,
+ *             "string": "string",
+ *             "boolean": true,
+ *             "null": null
+ *         }
+ * } the root {} will be a {@link Map}/{@link HashMap} inside of {@link JsonValue}
+ * that have 4 values in it.</p>
+ *
+ */
 public class JsonValue{
     protected String name;
     protected Object value;
@@ -23,16 +39,21 @@ public class JsonValue{
     public JsonValue(){}
     @Override
     public String toString(){
-        return toString(0, "    ");
+        return this.toString(0, "", "");
     }
-    protected String toString(String indentation){
-        return toString(0, indentation);
+    public String toStringFormatted(){
+        return this.toString(0, "    ", "\n");
     }
-    protected String toString(int depth){
-        return toString(depth, "    ");
+    public String toString(String indentation){
+        return this.toString(0, indentation, "\n");
     }
-    protected String toString(int depth, String indentation){
-        StringBuilder sb = new StringBuilder();
+    protected String toString(int depth, String linebreak){
+        return this.toString(depth, "    ", linebreak);
+    }
+    protected String toString(int depth, String indentation, String linebreak){
+        return this.toString(depth, indentation, new StringBuilder(), linebreak).toString();
+    }
+    protected StringBuilder toString(int depth, String indentation, StringBuilder sb, String linebreak){
         if(this.isObject()){
             depth++;
             sb.append('{');
@@ -40,32 +61,32 @@ public class JsonValue{
             List<Entry<String, JsonValue>> entries = new ArrayList<>(map.getEntries());
             for(int i = 0; i < map.size(); i++){
                 Entry<String, JsonValue> entry = entries.get(i);
-                sb.append('\n')
+                sb.append(linebreak)
                   .repeat(indentation, depth)
                   .append('"')
                   .append(entry.getKey())
                   .append("\": ")
-                  .append(entry.getValue().toString(depth))
+                  .append(entry.getValue().toString(depth, indentation, linebreak))
                   .append(',');
             }
             sb.setLength(sb.length() - 1);
-            sb.append("\n").repeat(indentation, --depth).append('}');
+            sb.append(linebreak).repeat(indentation, --depth).append('}');
         }else if(this.isArray()){
             depth++;
             sb.append('[');
             List<JsonValue> list = (List<JsonValue>)value;
             for(int i = 0; i < list.size(); i++){
-                sb.append('\n')
+                sb.append(linebreak)
                   .repeat(indentation, depth)
-                  .append(list.get(i).toString(depth))
+                  .append(list.get(i).toString(depth, indentation, linebreak))
                   .append(',');
             }
             sb.setLength(sb.length() - 1);
-            sb.append("\n").repeat(indentation, --depth).append(']');
+            sb.append(linebreak).repeat(indentation, --depth).append(']');
         }else if(this.isNumber())sb.append(((RawNumber)value).getOriginal());
-        else if(this.isString())sb.append('"').append((String)value).append('"');
+        else if(this.isString())sb.append('"').append(getAsString()).append('"');
         else if(this.isBoolean() || this.isNull())sb.append(value);
-        return sb.toString();
+        return sb;
     }
     public JsonValue setValue(Object value){
         this.value = value;

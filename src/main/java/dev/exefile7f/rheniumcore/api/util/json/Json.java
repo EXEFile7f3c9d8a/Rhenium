@@ -20,10 +20,35 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 
+/**
+ * A format of in-memory Json document with support for parsing, modifying, and
+ * serializing Json data.
+ *
+ * <p>This class is a combination of parser, file management, and {@code Json} file
+ * in memory as an object</p>
+ *
+ * <p>This class provides a Json parser that reads Json text and converts it
+ * into a tree structure made of {@link JsonValue} objects in memory. It supports
+ * every Json value types (objects, arrays, strings, numbers, booleans, and null).
+ * </p>
+ */
+
 public class Json{
+    /**
+     * Path of the Json file, where this class read and write. Possible to be null.
+     */
     protected Path path;
+    /**
+     * A String copy of the file {@link path}
+     */
     protected String file;
+    /**
+     * Determined what {@link toStringFormatted()} will use to fill up space thats empty.
+     */
     protected String indentation = "    ";
+    /**
+     * The actual place where the Json data gets stored
+     */
     protected JsonValue box;
 
     public Json(){
@@ -39,6 +64,9 @@ public class Json{
     }
     @Override
     public String toString(){
+        return this.box.toString();
+    }
+    public String toStringFormatted(){
         return this.box.toString(indentation);
     }
     public boolean exists(){
@@ -468,7 +496,7 @@ public class Json{
         }
         public static String invalidJsonNumber(String file, int i, String number){
             i -= number.length();
-            return "Invalid JSON number \"" + number + "\" at " +
+            return "Invalid Json number \"" + number + "\" at " +
                     Strings.toLineCharFormat(file, i) +
                     " (index " + i + ')';
         }
