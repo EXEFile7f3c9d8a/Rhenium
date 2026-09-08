@@ -1,16 +1,22 @@
 package dev.exefile7f.rheniumcore.api.util;
 
+import org.jetbrains.annotations.Contract;
+
 public class BitMask{
     private int nextBits;
     private int bits;
     public BitMask(){}
+
+    @Contract(pure = true)
     public int create(){
         if(nextBits >= 32)return 0;
         return 1 << nextBits++;
     }
+    @Contract(pure = true)
     public boolean isSet(int num){
         return (bits & num) != 0;
     }
+    @Contract(pure = true)
     public boolean isSet(int... nums){
         for(int i = 0; i < nums.length; i++){
             if(isSet(nums[i]))return true;
@@ -47,6 +53,7 @@ public class BitMask{
         return this;
     }
     @Override
+    @Contract(pure = true)
     public String toString(){
         return Integer.toBinaryString(bits);
     }

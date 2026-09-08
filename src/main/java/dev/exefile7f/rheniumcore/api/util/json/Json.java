@@ -10,6 +10,8 @@ import dev.exefile7f.rheniumcore.api.util.ArrayMap;
 import dev.exefile7f.rheniumcore.api.util.BitMask;
 import dev.exefile7f.rheniumcore.api.util.RawNumber;
 import dev.exefile7f.rheniumcore.api.util.Strings;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -62,22 +64,27 @@ public class Json{
         setPath(path);
         this.box = new JsonValue();
     }
-    @Override
+    @Override @Contract(pure = true)
     public String toString(){
         return this.box.toString();
     }
+    @Contract(pure = true)
     public String toStringFormatted(){
         return this.box.toString(indentation);
     }
+    @Contract(pure = true)
     public boolean exists(){
         return Files.exists(this.path);
     }
+    @Contract(pure = true)
     public boolean isWritable(){
         return Files.isWritable(this.path);
     }
+    @Contract(pure = true)
     public boolean isReadable(){
         return Files.isReadable(this.path);
     }
+    @Contract(pure = true)
     public long size() throws IOException{
         if(path == null){
             return file.getBytes(StandardCharsets.UTF_8).length;
@@ -120,12 +127,15 @@ public class Json{
         }
         return this;
     }
+    @Nullable @Contract(pure = true)
     public JsonValue get(){
         return box;
     }
+    @Nullable @Contract(pure = true)
     public JsonValue get(String name){
         return box.get(name);
     }
+    @Nullable @Contract(pure = true)
     public JsonValue get(int index){
         return box.get(index);
     }
@@ -246,7 +256,7 @@ public class Json{
                     switch(c){
                         case ' ', '\r', '\n' -> {}
                         case '"' -> {
-                            ParserFunction.VALUE_UNKNOWN_ifNamelessPush(
+                            ParserFunction.ifNamelessPush(
                                     tags,
                                     START,
                                     CURRENT_NAMELESS,
@@ -257,7 +267,7 @@ public class Json{
                             status = Status.VALUE_STRING;
                         }
                         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' -> {
-                            ParserFunction.VALUE_UNKNOWN_ifNamelessPush(
+                            ParserFunction.ifNamelessPush(
                                     tags,
                                     START,
                                     CURRENT_NAMELESS,
@@ -269,7 +279,7 @@ public class Json{
                             status = Status.VALUE_NUMBER;
                         }
                         case '{' -> {
-                            ParserFunction.VALUE_UNKNOWN_ifNamelessPush(
+                            ParserFunction.ifNamelessPush(
                                     tags,
                                     START,
                                     CURRENT_NAMELESS,
@@ -281,7 +291,7 @@ public class Json{
                             status = Status.NONE;
                         }
                         case '[' -> {
-                            ParserFunction.VALUE_UNKNOWN_ifNamelessPush(
+                            ParserFunction.ifNamelessPush(
                                     tags,
                                     START,
                                     CURRENT_NAMELESS,
@@ -294,7 +304,7 @@ public class Json{
                             status = Status.VALUE_UNKNOWN;
                         }
                         case 't', 'f', 'n' -> {
-                            ParserFunction.VALUE_UNKNOWN_ifNamelessPush(
+                            ParserFunction.ifNamelessPush(
                                     tags,
                                     START,
                                     CURRENT_NAMELESS,
@@ -412,7 +422,7 @@ public class Json{
                 return Status.AFTER_STATEMENT;
             }
         }
-        public static void VALUE_UNKNOWN_ifNamelessPush(
+        public static void ifNamelessPush(
                 BitMask tags,
                 int START,
                 int CURRENT_NAMELESS,
@@ -432,7 +442,7 @@ public class Json{
             }
             else if(tags.isSet(START))deque.element();
         }
-        public static void VALUE_UNKNOWN_ifNamelessPush(
+        public static void ifNamelessPush(
                 BitMask tags,
                 int START,
                 int CURRENT_NAMELESS,
@@ -516,6 +526,7 @@ public class Json{
                     " (index " + i + ')';
         }
     }
+    @Contract(pure = true)
     public static boolean isIllegalNumber(String number){
         enum Status{
             START,

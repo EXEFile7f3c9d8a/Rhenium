@@ -52,30 +52,30 @@ class _DEBUG{
         {
             Json json = new Json(Path.of("F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json"));
             {
-                System.out.println("File size:" + json.size());
+                System.out.println("File size:" + json.size() + "byte");
                 timer.start();
                 json.syncFile();
-                System.out.println("IO time:" + timer.stop());
+                System.out.println("IO time:" + timer.stopMS());
                 timer.start();
                 json.read();
-                System.out.println("parse time:" + timer.stop());
+                System.out.println("Parse time:" + timer.stopMS());
                 timer.start();
                 System.out.println(json);
-                System.out.println("rephrase time:" + timer.stop());
+                System.out.println("Rephrase time:" + timer.stopMS());
             }
             {
+                System.out.println();
+                int repeats = 100_000;
                 //stress test
                 for(int i = 0; i < 10000; i++){
                     json.read();
                 }
                 System.out.println("Warm up finished");
-                int repeats = 100_000;
-                long start = System.nanoTime();
+                timer.start();
                 for(int i = 0; i < repeats; i++){
                     json.read();
                 }
-                long end = System.nanoTime();
-                double ms = (end - start) / 1_000_000.0;
+                double ms = timer.stopMs();
                 System.out.println("total = " + ms + " ms");
                 System.out.println("average = " + ms / repeats + " ms");
             }
