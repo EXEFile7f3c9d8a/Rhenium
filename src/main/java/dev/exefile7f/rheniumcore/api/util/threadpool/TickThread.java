@@ -5,7 +5,8 @@ import dev.exefile7f.rheniumcore.RheniumCore;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static dev.exefile7f.rheniumcore.statics.StaticResource.*;
+import static dev.exefile7f.rheniumcore.api.util.threadpool.ThreadPool.ThreadPoolStatus.NO_TASK;
+import static dev.exefile7f.rheniumcore.api.util.threadpool.ThreadPool.ThreadPoolStatus.STOP;
 
 public class TickThread implements Consumer<ThreadPool> {
     public final String id;
@@ -25,7 +26,7 @@ public class TickThread implements Consumer<ThreadPool> {
                 pool.lock.await();
                 continue;
             }
-            pool.tasks.nextTask(this.COMPUTE, pool, pool.tasks.taskCounter);
+            pool.tasks.nextTask(this.COMPUTE, pool.tasks.taskCounter);
         }
         RheniumCore.LOGGER.info("{}-thread shutting down!", this.id);
     }

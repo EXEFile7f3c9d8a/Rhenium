@@ -44,7 +44,7 @@ public class NearestLivingEntitiesSensorMixin<T extends LivingEntity>{
             ent.remember((MemoryModuleType<LivingTargetCache>)s.output[3], (LivingTargetCache)s.output[4]);
         });
         Tasks tasks = THREAD_POOL.tasks;
-        tasks.addTask(tasks.getNearestEmptyTask().putInputs(ci, world, entity).setComputeType(this.getClass()));
+        tasks.addTask(tasks.getEmptyTask().putInputs(ci, world, entity).setComputeType(this.getClass()));
         ci.cancel();
     }
 }

@@ -53,7 +53,7 @@ public final class ArmadilloScareDetectedSensorMixin<T extends LivingEntity>{
             }
         });
         Tasks tasks = THREAD_POOL.tasks;
-        tasks.addTask(tasks.getNearestEmptyTask()
+        tasks.addTask(tasks.getEmptyTask()
                            .putInputs(ci, entity, this.threateningEntityPredicate, this.memoryModuleType, expiry)
                            .setComputeType(this.getClass())
         );

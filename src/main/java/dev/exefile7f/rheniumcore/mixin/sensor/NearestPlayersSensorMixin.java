@@ -59,7 +59,7 @@ public final class NearestPlayersSensorMixin{
             brain.remember((MemoryModuleType<PlayerEntity>)s.output[6], (PlayerEntity)s.output[7]);
         });
         Tasks tasks = THREAD_POOL.tasks;
-        tasks.addTask(tasks.getNearestEmptyTask().putInputs(ci, world, entity).setComputeType(this.getClass()));
+        tasks.addTask(tasks.getEmptyTask().putInputs(ci, world, entity).setComputeType(this.getClass()));
         ci.cancel();
     }
 }

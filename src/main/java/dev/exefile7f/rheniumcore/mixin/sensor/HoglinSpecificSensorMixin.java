@@ -77,7 +77,7 @@ public class HoglinSpecificSensorMixin{
             brain.remember((MemoryModuleType<Integer>)s.output[8], (int)s.output[9]);
         });
         Tasks tasks = THREAD_POOL.tasks;
-        tasks.addTask(tasks.getNearestEmptyTask().putInputs(ci, serverWorld, hoglinEntity).setComputeType(HoglinSpecificSensorMixin.class));
+        tasks.addTask(tasks.getEmptyTask().putInputs(ci, serverWorld, hoglinEntity).setComputeType(HoglinSpecificSensorMixin.class));
         ci.cancel();
     }
 }

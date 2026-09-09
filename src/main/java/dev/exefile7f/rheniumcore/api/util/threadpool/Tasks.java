@@ -1,11 +1,11 @@
 package dev.exefile7f.rheniumcore.api.util.threadpool;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-
-import static dev.exefile7f.rheniumcore.statics.StaticResource.*;
 
 public class Tasks{
     public static class Task{
@@ -58,10 +58,14 @@ public class Tasks{
             return this;
         }
     }
-    public Task[] tasks = new Task[512];
-    public AtomicInteger taskCounter = new AtomicInteger(0);
-    public AtomicInteger writeCounter = new AtomicInteger(0);
-    public AtomicInteger size = new AtomicInteger(0);
+    protected ThreadPool parentPool;
+    protected Task[] tasks = new Task[512];
+    protected AtomicInteger taskCounter = new AtomicInteger(0);
+    protected AtomicInteger writeCounter = new AtomicInteger(0);
+    protected AtomicInteger size = new AtomicInteger(0);
+    public Tasks(@NonNull ThreadPool pool){
+        this.parentPool = pool;
+    }
     public void reset(){
         synchronized(tasks){
             Arrays.fill(tasks, null);
@@ -69,10 +73,16 @@ public class Tasks{
             size.set(0);
         }
     }
+    public AtomicInteger getWriteCounter(){
+        return this.writeCounter;
+    }
+    public AtomicInteger getTaskCounter(){
+        return this.taskCounter;
+    }
     public boolean isDone(int i){
         return i >= this.size.get();
     }
-    public Task getNearestEmptyTask(){
+    public Task getEmptyTask(){
         return tasks[size.get()];
     }
     public Tasks addTask(Task tsk){
@@ -85,28 +95,29 @@ public class Tasks{
     public void grow(){
         synchronized(tasks){
             if(size.get() >= tasks.length){
-                tasks = replaceArrayNull(Arrays.copyOf(tasks, (tasks.length) * 2));
+                tasks = Arrays.copyOf(tasks, (tasks.length) * 2);
                 for(int i = 0; i < tasks.length; i++){
                     if(tasks[i] == null)tasks[i] = new Task();
                 }
             }
+            size.set(size.get() * 2);
         }
     }
-    public void nextTask(Map<String, Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){
+    public void nextTask(@NonNull Map<String, Consumer<Task>> COMPUTE_FUNCTIONS, @NonNull AtomicInteger counter){
         synchronized(tasks){
             int i = counter.getAndIncrement();
             if(isDone(i)){
-                if(pool != null)pool.pause();
+                if(parentPool != null)parentPool.pause();
                 return;
             }
             Task current = tasks[i];
             COMPUTE_FUNCTIONS.get(current.computeType.toString()).accept(current);
         }
     }
-    public void taskAll(Map<String, Consumer<Task>> COMPUTE_FUNCTIONS, ThreadPool pool, AtomicInteger counter){
+    public void taskAll(@NonNull Map<String, Consumer<Task>> COMPUTE_FUNCTIONS, @NonNull AtomicInteger counter){
         synchronized(taskCounter){
             while(!isDone(this.taskCounter.get())){
-                nextTask(COMPUTE_FUNCTIONS, pool, counter);
+                nextTask(COMPUTE_FUNCTIONS, counter);
             }
         }
     }

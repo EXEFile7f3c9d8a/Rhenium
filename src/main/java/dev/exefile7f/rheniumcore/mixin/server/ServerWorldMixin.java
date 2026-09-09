@@ -29,6 +29,6 @@ public final class ServerWorldMixin{
         }catch(InterruptedException e){
             throw new RuntimeException(e);
         }
-        THREAD_POOL.tasks.taskAll(RheniumCore.MIXIN_REG.getOutputMethods(), THREAD_POOL, THREAD_POOL.tasks.writeCounter);
+        THREAD_POOL.tasks.taskAll(RheniumCore.MIXIN_REG.getOutputMethods(), THREAD_POOL.tasks.getWriteCounter());
     }
 }
