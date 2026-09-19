@@ -12,6 +12,7 @@ import dev.exefile7f.rheniumcore.api.util.RawNumber;
 import dev.exefile7f.rheniumcore.api.util.Strings;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -36,21 +37,13 @@ import java.util.Deque;
  */
 
 public class Json{
-    /**
-     * Path of the Json file, where this class read and write. Possible to be null.
-     */
+    ///Path of the Json file, where this class read and write. Possible to be null.
     protected Path path;
-    /**
-     * A String copy of the file {@link path}
-     */
+    ///A String copy of the file {@link path}
     protected String file;
-    /**
-     * Determined what {@link toStringFormatted()} will use to fill up space thats empty.
-     */
+    ///Determined what {@link toStringFormatted()} will use to fill up space thats empty.
     protected String indentation = "    ";
-    /**
-     * The actual place where the Json data gets stored
-     */
+    ///The actual place where the Json data gets stored
     protected JsonValue box;
 
     public Json(){
@@ -159,9 +152,6 @@ public class Json{
             this.value = value;
         }
     }
-    /**
-     *
-     */
     public Json read() throws IOException{
         if(this.file == null || this.file.isEmpty()){
             if(this.path == null)throw new IllegalArgumentException("File path and copy string cannot both be null");

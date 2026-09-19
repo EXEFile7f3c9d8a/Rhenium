@@ -20,11 +20,4 @@ public final class Strings{
         }
         return lines + ":" + character;
     }
-    public static String BooleansToString(boolean... bool){
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < bool.length; i++){
-            sb.append(bool[i]).append(" ");
-        }
-        return sb.toString();
-    }
 }

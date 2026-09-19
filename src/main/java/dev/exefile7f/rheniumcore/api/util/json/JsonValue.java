@@ -67,6 +67,7 @@ public class JsonValue{
             depth++;
             sb.append('{');
             var linebreak = compact ? "" : '\n';
+            indentation = compact ? "" : indentation;
             ArrayMap<String, JsonValue> map = this.getAsObject();
             List<Entry<String, JsonValue>> entries = new ArrayList<>(map.getEntries());
             for(int i = 0; i < map.size(); i++){
@@ -86,6 +87,7 @@ public class JsonValue{
             depth++;
             sb.append('[');
             var linebreak = compact ? "" : '\n';
+            indentation = compact ? "" : indentation;
             List<JsonValue> list = this.getAsArray();
             for(int i = 0; i < list.size(); i++){
                 sb.append(linebreak).repeat(indentation, depth);

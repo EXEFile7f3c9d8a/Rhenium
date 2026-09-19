@@ -32,7 +32,7 @@ public class HoglinSpecificSensorMixin{
             cancellable = true
     )
     public void sense(ServerWorld serverWorld, HoglinEntity hoglinEntity, CallbackInfo ci){
-        RheniumCore.MIXIN_REG.reg(HoglinSpecificSensorMixin.class, (s) -> {
+        RheniumCore.MIXIN_REG.reg(this.getClass(), (s) -> {
             HoglinEntity ent = (HoglinEntity)s.input[2];
             ServerWorld serverWord = (ServerWorld)s.input[1];
             Brain<?> brain = ent.getBrain();
