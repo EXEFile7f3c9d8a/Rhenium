@@ -3,6 +3,7 @@ package dev.exefile7f.rheniumcore.debug;
 import dev.exefile7f.rheniumcore.api.util.Timer;
 import dev.exefile7f.rheniumcore.api.util.json.Json;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 class _DEBUG{
@@ -78,6 +79,27 @@ class _DEBUG{
                 double ms = timer.stopMs();
                 System.out.println("total = " + ms + " ms");
                 System.out.println("average = " + ms / repeats + " ms");
+                System.out.println((Files.size(json.getPath())/ 1_000 / (ms / repeats)) + "MB/s");
+            }
+            {
+                json.setPath(Path.of(
+                        "F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG-NOSPACE.json"
+                ));
+                System.out.println();
+                int repeats = 100_000;
+                //stress test
+                for(int i = 0; i < 10000; i++){
+                    json.read();
+                }
+                System.out.println("Warm up finished");
+                timer.start();
+                for(int i = 0; i < repeats; i++){
+                    json.read();
+                }
+                double ms = timer.stopMs();
+                System.out.println("total = " + ms + " ms");
+                System.out.println("average = " + ms / repeats + " ms");
+                System.out.println((Files.size(json.getPath())/ 1_000 / (ms / repeats)) + "MB/s");
             }
             {
                 try{

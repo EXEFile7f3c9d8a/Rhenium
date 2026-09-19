@@ -12,7 +12,6 @@ import dev.exefile7f.rheniumcore.api.util.RawNumber;
 import dev.exefile7f.rheniumcore.api.util.Strings;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -87,6 +86,7 @@ public class Json{
     public Json setPath(Path path){
         if(Files.isDirectory(path))throw new IllegalArgumentException("Not a file: Path leads to a directory");
         else this.path = path;
+        try{this.syncFile();}catch(IOException e){throw new RuntimeException(e);}
         return this;
     }
     public Json setIndentation(String str){
@@ -132,6 +132,21 @@ public class Json{
     public JsonValue get(int index){
         return box.get(index);
     }
+    @Nullable @Contract(pure = true)
+    public Path getPath(){
+        return this.path;
+    }
+    public Json read() throws IOException{
+        if(this.file == null || this.file.isEmpty()){
+            if(this.path == null)throw new IllegalArgumentException("File path and copy string cannot both be null");
+            if(!this.exists())throw new NoSuchFileException("No such file: \"" + this.path.toAbsolutePath() + '"');
+            if(!this.isReadable())throw new IOException("Not a readable file: \"" + this.path.toAbsolutePath() + '"');
+            this.syncFile();
+        }
+        String file = this.file;
+        this.box = Json.parseJson(file);
+        return this;
+    }
     protected enum Status{
         NONE,
         NAME,
@@ -151,17 +166,6 @@ public class Json{
             this.sample = sample;
             this.value = value;
         }
-    }
-    public Json read() throws IOException{
-        if(this.file == null || this.file.isEmpty()){
-            if(this.path == null)throw new IllegalArgumentException("File path and copy string cannot both be null");
-            if(!this.exists())throw new NoSuchFileException("No such file: \"" + this.path.toAbsolutePath() + '"');
-            if(!this.isReadable())throw new IOException("Not a readable file: \"" + this.path.toAbsolutePath() + '"');
-            this.syncFile();
-        }
-        String file = this.file;
-        this.box = Json.parseJson(file);
-        return this;
     }
     @Contract(pure = true)
     public static JsonValue parseJson(String file){
