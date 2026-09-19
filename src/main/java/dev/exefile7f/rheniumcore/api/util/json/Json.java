@@ -160,6 +160,11 @@ public class Json{
             this.syncFile();
         }
         String file = this.file;
+        this.box = Json.parseJson(file);
+        return this;
+    }
+    @Contract(pure = true)
+    public static JsonValue parseJson(String file){
         BitMask tags = new BitMask();
         final int START = tags.create();
         final int CURRENT_NAMELESS = tags.create();
@@ -193,7 +198,7 @@ public class Json{
                     switch(c){
                         case ' ', '\r', '\n' -> {}
                         case ',' -> {
-                            if(tags.isSet(AFTER_COMMA))throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
+                            if(tags.isSet(AFTER_COMMA) || deque.isEmpty())throw new UnexpectedCharException(Exceptions.unexpectedChar(c, file, i));
                             else{
                                 if(deque.element().isObject())status = Status.NONE;
                                 else if(deque.element().isArray())status = Status.VALUE_UNKNOWN;
@@ -392,8 +397,7 @@ public class Json{
                         " (index " + i + ")"
         );
         if(!sb.isEmpty() || tags.isSet(AFTER_BACKSLASH, AFTER_COMMA))throw new UnexpectedEOFException(Exceptions.unexpectedEOF(file, i));
-        this.box = root;
-        return this;
+        return root;
     }
     private static final class ParserFunction{
         private ParserFunction(){}

@@ -79,6 +79,13 @@ class _DEBUG{
                 System.out.println("total = " + ms + " ms");
                 System.out.println("average = " + ms / repeats + " ms");
             }
+            {
+                try{
+                    Json.parseJson("{}, {}");
+                }catch(Exception e){
+                    System.out.println(e);
+                }
+            }
 //            {
 //                JsonValue temp = json.get("1map").get("array").get(4);
 //                System.out.println(temp);
@@ -86,6 +93,7 @@ class _DEBUG{
 //                json.write();
 //            }
         }
+
 //        temp:
 //        try(InputStream inputStream = _DEBUG.class.getResourceAsStream("/fabric.mod.json")){
 //            if(inputStream == null){
