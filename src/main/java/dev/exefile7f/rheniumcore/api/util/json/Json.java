@@ -65,6 +65,10 @@ public class Json{
         return this.box.toString(indentation);
     }
     @Contract(pure = true)
+    public String toStringFormatted(String indentation){
+        return this.box.toString(indentation);
+    }
+    @Contract(pure = true)
     public boolean exists(){
         return Files.exists(this.path);
     }
@@ -84,7 +88,7 @@ public class Json{
         return Files.size(path);
     }
     public Json setPath(Path path){
-        if(Files.isDirectory(path))throw new IllegalArgumentException("Not a file: Path leads to a directory");
+        if(Files.isDirectory(path))throw new IllegalArgumentException("Path cannot be a directory: " + path.toAbsolutePath());
         else this.path = path;
         try{this.syncFile();}catch(IOException e){throw new RuntimeException(e);}
         return this;
@@ -100,6 +104,7 @@ public class Json{
     public Json autoCreate(){
         try{
             if(!Files.exists(path)){
+                Files.createDirectories(path.getParent());
                 Files.createFile(path);
                 Files.writeString(path, "{}");
             }
@@ -109,14 +114,22 @@ public class Json{
         return this;
     }
     public Json write() throws IOException{
+        return this.writeString(this.toString());
+    }
+    public Json writeFormatted() throws IOException{
+        return this.writeString(this.toStringFormatted());
+    }
+    protected Json writeString(String str) throws IOException{
         autoCreate();
         if(!isWritable())throw new IOException("Not a writable file");
-        Files.writeString(path, this.toString());
+        Files.writeString(path, str);
         return this;
     }
     public Json syncFile() throws IOException{
-        if(this.path != null){
+        if(this.path != null && Files.exists(this.path) && !Files.isDirectory(this.path)){
             this.file = Files.readString(this.path);
+        }else if(!Files.exists(this.path)){
+            autoCreate();
         }
         return this;
     }

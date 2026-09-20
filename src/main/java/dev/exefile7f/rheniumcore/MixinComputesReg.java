@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 
 public class MixinComputesReg{
     public MixinComputesReg(){}
-    private Map<String, Consumer<Tasks.Task>> INPUT_COMPUTES = new HashMap<>();
-    private Map<String, Consumer<Tasks.Task>> OUTPUT_COMPUTES = new HashMap<>();
+    protected Map<String, Consumer<Tasks.Task>> INPUT_COMPUTES = new HashMap<>();
+    protected Map<String, Consumer<Tasks.Task>> OUTPUT_COMPUTES = new HashMap<>();
     public void reg(Class<?> clazz, Consumer<Tasks.Task> input, Consumer<Tasks.Task> output){
         String name = clazz.getName();
         if(INPUT_COMPUTES.get(name) == null || OUTPUT_COMPUTES.get(name) == null){

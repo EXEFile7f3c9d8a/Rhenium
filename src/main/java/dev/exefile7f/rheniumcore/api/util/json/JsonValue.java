@@ -40,28 +40,40 @@ public class JsonValue{
         if(this.isObject())return this.getAsObject().get(name);
         else return null;
     }
+    @Contract(pure = true)
+    public JsonValue pull(int index){
+        JsonValue t = this.get(index);
+        if(t == null)throw new IllegalArgumentException("The element does not exist: " + index);
+        return t;
+    }
+    @Contract(pure = true)
+    public JsonValue pull(String name){
+        JsonValue t = this.get(name);
+        if(t == null)throw new IllegalArgumentException("The element does not exist: " + name);
+        return t;
+    }
     public JsonValue(){}
-    @Override @Nullable @Contract(pure = true)
+    @Override @Contract(pure = true)
     public String toString(){
         return this.toString(0, "", true);
     }
-    @Nullable @Contract(pure = true)
+    @Contract(pure = true)
     public String toStringFormatted(){
         return this.toString(0, "    ", false);
     }
-    @Nullable @Contract(pure = true)
+    @Contract(pure = true)
     public String toString(String indentation){
         return this.toString(0, indentation, false);
     }
-    @Nullable @Contract(pure = true)
+    @Contract(pure = true)
     protected String toString(int depth, boolean compact){
         return this.toString(depth, compact ? "" : "    ", compact);
     }
-    @Nullable @Contract(pure = true)
+    @Contract(pure = true)
     protected String toString(int depth, String indentation, boolean compact){
         return this.toString(depth, indentation, new StringBuilder(), compact).toString();
     }
-    @Nullable @Contract(pure = true)
+    @Contract(pure = true)
     protected StringBuilder toString(int depth, String indentation, StringBuilder sb, boolean compact){
         if(this.isObject()){
             depth++;

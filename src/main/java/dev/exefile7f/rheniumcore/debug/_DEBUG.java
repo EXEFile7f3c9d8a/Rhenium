@@ -51,8 +51,10 @@ class _DEBUG{
 //        );
 //        System.out.println(timer.stop());
         {
-            Json json = new Json(Path.of("F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json"));
             {
+                Json json = new Json(Path.of(
+                        "F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json")
+                );
                 System.out.println("File size:" + json.size() + "byte");
                 timer.start();
                 json.syncFile();
@@ -65,41 +67,40 @@ class _DEBUG{
                 System.out.println("Rephrase time:" + timer.stopMS());
             }
             {
+                Path path = Path.of("F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json");
+                String str = Files.readString(path);
                 System.out.println();
                 int repeats = 100_000;
-                //stress test
-                for(int i = 0; i < 10000; i++){
-                    json.read();
+                for(int i = 0; i < 10_000; i++){
+                    Json.parseJson(str);
                 }
                 System.out.println("Warm up finished");
                 timer.start();
                 for(int i = 0; i < repeats; i++){
-                    json.read();
+                    Json.parseJson(str);
                 }
                 double ms = timer.stopMs();
-                System.out.println("total = " + ms + " ms");
-                System.out.println("average = " + ms / repeats + " ms");
-                System.out.println((Files.size(json.getPath())/ 1_000 / (ms / repeats)) + "MB/s");
+                System.out.println("Total = " + ms + " ms");
+                System.out.println("Average = " + ms / repeats + " ms");
+                System.out.println((Files.size(path)/ 1_000 / (ms / repeats)) + "MB/s");
             }
             {
-                json.setPath(Path.of(
-                        "F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG-NOSPACE.json"
-                ));
+                Path path = Path.of("F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG-NOSPACE.json");
+                String str = Files.readString(path);
                 System.out.println();
                 int repeats = 100_000;
-                //stress test
-                for(int i = 0; i < 10000; i++){
-                    json.read();
+                for(int i = 0; i < 10_000; i++){
+                    Json.parseJson(str);
                 }
                 System.out.println("Warm up finished");
                 timer.start();
                 for(int i = 0; i < repeats; i++){
-                    json.read();
+                    Json.parseJson(str);
                 }
                 double ms = timer.stopMs();
-                System.out.println("total = " + ms + " ms");
-                System.out.println("average = " + ms / repeats + " ms");
-                System.out.println((Files.size(json.getPath())/ 1_000 / (ms / repeats)) + "MB/s");
+                System.out.println("Total = " + ms + " ms");
+                System.out.println("Average = " + ms / repeats + " ms");
+                System.out.println((Files.size(path)/ 1_000 / (ms / repeats)) + "MB/s");
             }
             {
                 try{

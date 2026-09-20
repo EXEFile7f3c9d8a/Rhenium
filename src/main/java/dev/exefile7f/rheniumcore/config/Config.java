@@ -35,7 +35,7 @@ public class Config{
         return json.get(name);
     }
     public Config write() throws IOException{
-        json.write();
+        json.writeFormatted();
         return this;
     }
 }
