@@ -53,8 +53,8 @@ class _DEBUG{
         {
             {
                 Json json = new Json(Path.of(
-                        "F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json")
-                );
+                        "F:\\Programs\\Code\\Java\\IDE\\rhenium\\main\\src\\main\\java\\dev\\exefile7f\\rheniumcore\\debug\\_DEBUG.json"
+                ));
                 System.out.println("File size:" + json.size() + "byte");
                 timer.start();
                 json.syncFile();

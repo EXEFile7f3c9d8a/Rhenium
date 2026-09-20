@@ -24,14 +24,14 @@ import java.util.Deque;
 
 /**
  * A format of in-memory Json document with support for parsing, modifying, and
- * serializing Json data.
+ * serializing JSON data.
  *
- * <p>This class is a combination of parser, file management, and {@code Json} file
+ * <p>This class is a combination of parser, file management, and {@code JSON} file
  * in memory as an object</p>
  *
- * <p>This class provides a Json parser that reads Json text and converts it
+ * <p>This class provides a JSON parser that reads JSON text and converts it
  * into a tree structure made of {@link JsonValue} objects in memory. It supports
- * every Json value types (objects, arrays, strings, numbers, booleans, and null).
+ * every JSON value types (objects, arrays, strings, numbers, booleans, and null).
  * </p>
  */
 

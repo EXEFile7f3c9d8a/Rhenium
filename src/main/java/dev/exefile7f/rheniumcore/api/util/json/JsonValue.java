@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A in-memory format of Json data
+ * A in-memory format of JSON data
  *
- * <p>This class saves Json data as a small object in a tree structure, for example;
+ * <p>This class saves JSON data as a small object in a tree structure, for example;
  * {@snippet lang=JSON:
  *         {
  *             "number": -123E+123,
