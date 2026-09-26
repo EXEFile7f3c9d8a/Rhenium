@@ -16,7 +16,6 @@ public class Config{
         }catch(IOException e){
             throw new RuntimeException(e);
         }
-
     }
     public Config save(Object name, Object value){
         if(json.get().isObject())json.get().getAsObject().put(name.toString(), new JsonValue().setValue(value).setName(name.toString()));
@@ -25,7 +24,7 @@ public class Config{
     }
     public Config tryWrite(Logger logger){
         try{
-            json.write();
+            json.writeFormatted();
         }catch(IOException e){
             logger.error(e.toString());
         }

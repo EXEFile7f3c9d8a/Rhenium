@@ -13,6 +13,7 @@ import dev.exefile7f.rheniumcore.api.util.Strings;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -81,11 +82,17 @@ public class Json{
         return Files.isReadable(this.path);
     }
     @Contract(pure = true)
+    public long trySize(){
+        try{return this.size();}catch(IOException e){throw new RuntimeException(e);}
+    }
+    @Contract(pure = true)
     public long size() throws IOException{
+        this.syncFile();
         if(path == null){
             return file.getBytes(StandardCharsets.UTF_8).length;
+        }else{
+            return Files.size(path);
         }
-        return Files.size(path);
     }
     public Json setPath(Path path){
         if(Files.isDirectory(path))throw new IllegalArgumentException("Path cannot be a directory: " + path.toAbsolutePath());
@@ -101,15 +108,12 @@ public class Json{
         this.indentation = " ".repeat(length);
         return this;
     }
-    public Json autoCreate(){
-        try{
-            if(!Files.exists(path)){
-                Files.createDirectories(path.getParent());
-                Files.createFile(path);
-                Files.writeString(path, "{}");
-            }
-        }catch(IOException e){
-            throw new RuntimeException(e);
+    public Json autoCreate() throws IOException{
+        if(this.path == null)return this;
+        if(!Files.exists(path) && !Files.isDirectory(path)){
+            Files.createDirectories(path.getParent());
+            Files.createFile(path);
+            Files.writeString(path, "{}");
         }
         return this;
     }
@@ -120,16 +124,24 @@ public class Json{
         return this.writeString(this.toStringFormatted());
     }
     protected Json writeString(String str) throws IOException{
-        autoCreate();
-        if(!isWritable())throw new IOException("Not a writable file");
+        this.autoCreate();
         Files.writeString(path, str);
         return this;
     }
     public Json syncFile() throws IOException{
-        if(this.path != null && Files.exists(this.path) && !Files.isDirectory(this.path)){
+        if(this.path == null)return this;
+        if(Files.exists(this.path) && !Files.isDirectory(this.path)){
             this.file = Files.readString(this.path);
         }else if(!Files.exists(this.path)){
-            autoCreate();
+            this.autoCreate();
+        }else if(Files.isDirectory(this.path)){
+            Desktop desktop = Desktop.getDesktop();
+            if(desktop.isSupported(Desktop.Action.MOVE_TO_TRASH)){
+                desktop.moveToTrash(this.path.toFile());
+            }else{
+                Files.delete(this.path);
+            }
+            this.autoCreate();
         }
         return this;
     }
@@ -388,6 +400,7 @@ public class Json{
                 }
             }
         }
+        if(tags.isSet(START))return null;
         switch(status){
             case NAME, AFTER_NAME, VALUE_UNKNOWN, VALUE_STRING -> throw new UnexpectedEOFException(Exceptions.unexpectedEOF(file, i));
             case VALUE_NUMBER -> {
@@ -546,12 +559,12 @@ public class Json{
             EXPONENT,
         }
         BitMask tags = new BitMask();
-        int AFTER_NEGATIVE = tags.create();
-        int START_WITH_0 = tags.create();
-        int AFTER_EXPONENT = tags.create();
-        int AFTER_DECIMAL = tags.create();
-        int AFTER_EXPONENT_SIGNS = tags.create();
-        int AFTER_EXPONENT_NUMBERS = tags.create();
+        final int AFTER_NEGATIVE = tags.create();
+        final int START_WITH_0 = tags.create();
+        final int AFTER_EXPONENT = tags.create();
+        final int AFTER_DECIMAL = tags.create();
+        final int AFTER_EXPONENT_SIGNS = tags.create();
+        final int AFTER_EXPONENT_NUMBERS = tags.create();
         Status status = Status.START;
         int i = 0;
         for(; i < number.length(); i++){

@@ -9,8 +9,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;
 
-import java.io.IOException;
-
+import static dev.exefile7f.rheniumcore.RheniumCore.LOGGER;
 import static dev.exefile7f.rheniumcore.client.RheniumCoreClient.config;
 
 @Environment(EnvType.CLIENT)
@@ -23,18 +22,16 @@ public class ModMenuIntegration implements ModMenuApi{
                     .setParentScreen(parent)
                     .setTitle(Text.of("Title"));
             ConfigEntryBuilder toggle = builder.entryBuilder();
-            ConfigCategory general = builder.getOrCreateCategory(Text.of("catagory"));
+            ConfigCategory general = builder.getOrCreateCategory(Text.of("category"));
             String name = "switch";
-            general.addEntry(toggle.startBooleanToggle(Text.of(name), config.get(name) == null ? false : (boolean)config.get(name).getValue())
-                    .setDefaultValue(false)
-                    .setSaveConsumer((value) -> {
-                        config.save(name, value);
-                        try{
-                            config.write();
-                        }catch(IOException e){
-                            throw new RuntimeException(e);
-                        }
-                    }).build());
+            general.addEntry(toggle.startBooleanToggle(Text.of(name), config.get(name) == null ? false :
+                                           config.get(name).getValue() != null ? (boolean)config.get(name).getValue() : false)
+                                   .setDefaultValue(false)
+                                   .setSaveConsumer((value) -> {
+                                       config.save(name, value);
+                                       config.tryWrite(LOGGER);
+                                   }).build()
+            );
             return builder.build();
         };
     }

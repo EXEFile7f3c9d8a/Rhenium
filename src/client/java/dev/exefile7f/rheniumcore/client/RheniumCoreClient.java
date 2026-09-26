@@ -8,9 +8,15 @@ import static dev.exefile7f.rheniumcore.RheniumCore.MOD_ID;
 import static dev.exefile7f.rheniumcore.RheniumCore.getConfigPath;
 
 public class RheniumCoreClient implements ClientModInitializer{
+    private static boolean initialized = false;
     public static final Config config = new Config(getConfigPath());
 	@Override
 	public void onInitializeClient(){
+        RheniumCoreClient.initialized = true;
+        LOGGER.info("RheniumCore Client Running!");
         LOGGER.debug("Config Path of {}: {}", MOD_ID, getConfigPath());
+    }
+    public boolean isInitialized(){
+        return RheniumCoreClient.initialized;
     }
 }

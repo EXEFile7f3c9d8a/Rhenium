@@ -116,7 +116,6 @@ class _DEBUG{
 //                json.write();
 //            }
         }
-
 //        temp:
 //        try(InputStream inputStream = _DEBUG.class.getResourceAsStream("/fabric.mod.json")){
 //            if(inputStream == null){
